@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace CuitService.TaxInfoProvider
+namespace DopplerCustomDomain.TaxInfoProvider
 {
     public class DummyTaxInfoProviderService : ITaxInfoProviderService
     {

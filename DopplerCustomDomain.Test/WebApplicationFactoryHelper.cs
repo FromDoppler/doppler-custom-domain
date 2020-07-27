@@ -1,4 +1,4 @@
-using CuitService.DopplerSecurity;
+using DopplerCustomDomain.DopplerSecurity;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 
-namespace CuitService.Test
+namespace DopplerCustomDomain.Test
 {
     public static class WebApplicationFactoryHelper
     {

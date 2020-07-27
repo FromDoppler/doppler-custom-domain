@@ -1,7 +1,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 
-namespace CuitService.DopplerSecurity
+namespace DopplerCustomDomain.DopplerSecurity
 {
     public class DopplerSecurityOptions
     {

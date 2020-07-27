@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30223.230
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuitService", "CuitService\CuitService.csproj", "{779FDAE5-672D-43F5-9065-BC4009A2E078}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DopplerCustomDomain", "DopplerCustomDomain\DopplerCustomDomain.csproj", "{779FDAE5-672D-43F5-9065-BC4009A2E078}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuitService.Test", "CuitService.Test\CuitService.Test.csproj", "{E947569E-C5EE-4FB2-9ECE-248F2C2F25E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DopplerCustomDomain.Test", "DopplerCustomDomain.Test\DopplerCustomDomain.Test.csproj", "{E947569E-C5EE-4FB2-9ECE-248F2C2F25E6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E7C59EC-883F-49F5-BEAE-C711C88D0D28}"
 	ProjectSection(SolutionItems) = preProject

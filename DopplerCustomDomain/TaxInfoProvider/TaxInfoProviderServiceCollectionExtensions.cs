@@ -1,4 +1,4 @@
-using CuitService.TaxInfoProvider;
+using DopplerCustomDomain.TaxInfoProvider;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection

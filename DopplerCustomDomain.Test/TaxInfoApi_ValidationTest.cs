@@ -9,7 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace CuitService.Test
+namespace DopplerCustomDomain.Test
 {
     public class TaxInfoApi_ValidationTest : IClassFixture<WebApplicationFactory<Startup>>, IDisposable
     {

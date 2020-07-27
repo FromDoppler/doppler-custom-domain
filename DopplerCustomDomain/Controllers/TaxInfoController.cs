@@ -1,4 +1,4 @@
-using CuitService.TaxInfoProvider;
+using DopplerCustomDomain.TaxInfoProvider;
 using Flurl.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using Tavis.UriTemplates;
 
-namespace CuitService.Controllers
+namespace DopplerCustomDomain.Controllers
 {
     [Authorize]
     [ApiController]

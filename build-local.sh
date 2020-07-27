@@ -15,7 +15,7 @@ cd "$(dirname "$0")"
 export MSYS_NO_PATHCONV=1
 export MSYS2_ARG_CONV_EXCL="*"
 
-imageName=fromdoppler/cuit-service
+imageName=fromdoppler/doppler-custom-domain
 
 docker build \
     -t ${imageName}:local \

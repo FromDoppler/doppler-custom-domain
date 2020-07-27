@@ -1,4 +1,4 @@
-namespace CuitService
+namespace DopplerCustomDomain
 {
     public class TaxInfo
     {

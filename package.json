@@ -1,5 +1,5 @@
 {
-  "name": "cuit-service",
+  "name": "doppler-custom-domain",
   "private": true,
   "dependencies": {
     "eclint": "^2.8.1",

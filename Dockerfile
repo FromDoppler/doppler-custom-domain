@@ -29,7 +29,7 @@ FROM build AS test
 RUN dotnet test
 
 FROM build AS publish
-RUN dotnet publish "CuitService/CuitService.csproj" -c Release -o /app/publish
+RUN dotnet publish "DopplerCustomDomain/DopplerCustomDomain.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.6-buster-slim AS final
 # We need these changes in openssl.cnf to access to our SQL Server instances in QA and INT environments
@@ -44,4 +44,4 @@ EXPOSE 443
 COPY --from=publish /app/publish .
 ARG version=unknown
 RUN echo $version > /app/wwwroot/version.txt
-ENTRYPOINT ["dotnet", "CuitService.dll"]
+ENTRYPOINT ["dotnet", "DopplerCustomDomain.dll"]

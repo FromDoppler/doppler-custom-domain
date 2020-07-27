@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "CuitService": {
+    "DopplerCustomDomain": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "taxinfo/by-cuit/20-31111111-7",

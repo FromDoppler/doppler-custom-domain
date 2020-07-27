@@ -1,4 +1,4 @@
-namespace CuitService.TaxInfoProvider
+namespace DopplerCustomDomain.TaxInfoProvider
 {
     public class TaxInfoProviderOptions
     {

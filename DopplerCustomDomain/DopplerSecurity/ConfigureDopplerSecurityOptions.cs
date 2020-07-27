@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 
-namespace CuitService.DopplerSecurity
+namespace DopplerCustomDomain.DopplerSecurity
 {
     public class ConfigureDopplerSecurityOptions : IConfigureOptions<DopplerSecurityOptions>
     {

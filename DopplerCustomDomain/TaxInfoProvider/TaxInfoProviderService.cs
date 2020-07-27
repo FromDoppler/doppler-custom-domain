@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Tavis.UriTemplates;
 
 
-namespace CuitService.TaxInfoProvider
+namespace DopplerCustomDomain.TaxInfoProvider
 {
     public class TaxInfoProviderService : ITaxInfoProviderService
     {

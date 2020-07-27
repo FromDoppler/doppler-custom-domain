@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace CuitService.TaxInfoProvider
+namespace DopplerCustomDomain.TaxInfoProvider
 {
     public class ConfigureTaxInfoProviderOptions : IConfigureOptions<TaxInfoProviderOptions>
     {

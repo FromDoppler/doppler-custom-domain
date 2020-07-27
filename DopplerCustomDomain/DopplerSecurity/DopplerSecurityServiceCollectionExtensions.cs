@@ -1,4 +1,4 @@
-using CuitService.DopplerSecurity;
+using DopplerCustomDomain.DopplerSecurity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;

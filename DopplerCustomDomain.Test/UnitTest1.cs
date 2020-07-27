@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace CuitService.Test
+namespace DopplerCustomDomain.Test
 {
     public class UnitTest1
     {

@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CuitService\CuitService.csproj" />
+    <ProjectReference Include="..\DopplerCustomDomain\DopplerCustomDomain.csproj" />
   </ItemGroup>
 
 </Project>

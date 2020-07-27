@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/CuitService/bin/Debug/netcoreapp3.1/CuitService.dll",
+            "program": "${workspaceFolder}/DopplerCustomDomain/bin/Debug/netcoreapp3.1/DopplerCustomDomain.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/CuitService",
+            "cwd": "${workspaceFolder}/DopplerCustomDomain",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
