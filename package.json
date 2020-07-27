@@ -1,0 +1,15 @@
+{
+  "name": "cuit-service",
+  "private": true,
+  "dependencies": {
+    "eclint": "^2.8.1",
+    "prettier": "^2.0.4"
+  },
+  "scripts": {
+    "verify": "yarn prettier-check && yarn eclint-check",
+    "eclint-fix": "git ls-files | xargs eclint fix",
+    "eclint-check": "git ls-files | xargs eclint check",
+    "prettier-fix": "prettier --write \"**/**\"",
+    "prettier-check": "prettier --check \"**/**\""
+  }
+}
