@@ -1,9 +1,6 @@
-using Flurl.Http;
+using DopplerCustomDomain.Consul;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Tavis.UriTemplates;
 
 
 namespace DopplerCustomDomain.CustomDomainProvider
@@ -11,20 +8,40 @@ namespace DopplerCustomDomain.CustomDomainProvider
     public class CustomDomainProviderService : ICustomDomainProviderService
     {
         private readonly ILogger<CustomDomainProviderService> _logger;
+        private readonly IConsulHttpClient _consulHttpClient;
 
-        public CustomDomainProviderService(ILogger<CustomDomainProviderService> logger)
+        public CustomDomainProviderService(ILogger<CustomDomainProviderService> logger, IConsulHttpClient consulHttpClient)
         {
             _logger = logger;
+            _consulHttpClient = consulHttpClient;
         }
 
-        public Task CreateCustomDomain(string domain, string service)
+        public async Task CreateCustomDomain(string domain, string service)
         {
-            throw new System.NotImplementedException();
+            var httpsBaseUrl = GenerateHttpsRouteConsulUrl(domain);
+            var httpBaseUrl = GenerateHttpRouteConsulUrl(domain);
+
+            await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/entrypoints", "websecure_entry_point");
+            await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/tls/certresolver", "letsencryptresolver");
+            await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/rule", $"Host(`{domain}`)");
+            await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/service", service);
+
+            await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/entrypoints", "web_entry_point");
+            await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/service", service);
+            await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/rule", $"Host(`{domain}`)");
+            await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/middlewares", "http_to_https@file");
         }
 
-        public Task DeleteCustomDomain(string domain)
+        public async Task DeleteCustomDomain(string domain)
         {
-            throw new System.NotImplementedException();
+            await _consulHttpClient.DeleteRecurseAsync($"{GenerateHttpsRouteConsulUrl(domain)}");
+            await _consulHttpClient.DeleteRecurseAsync($"{GenerateHttpRouteConsulUrl(domain)}");
         }
+
+        private string GenerateHttpsRouteConsulUrl(string domain) =>
+            $"/v1/kv/traefik/http/routers/https_{domain}";
+
+        private string GenerateHttpRouteConsulUrl(string domain) =>
+            $"/v1/kv/traefik/http/routers/http_{domain}";
     }
 }
