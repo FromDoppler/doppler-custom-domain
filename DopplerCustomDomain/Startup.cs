@@ -18,7 +18,6 @@ namespace DopplerCustomDomain
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDopplerSecurity();
-            services.AddTaxInfoProvider();
             services.AddControllers()
                 .AddJsonOptions(options =>
                 {
