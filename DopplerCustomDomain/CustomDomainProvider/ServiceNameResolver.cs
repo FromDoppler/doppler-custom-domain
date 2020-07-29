@@ -1,8 +1,4 @@
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DopplerCustomDomain.CustomDomainProvider
 {
@@ -15,9 +11,14 @@ namespace DopplerCustomDomain.CustomDomainProvider
             _traefikConfiguration = options.Value;
         }
 
-        public Services Resolve()
+        public string? Resolve(string publicName)
         {
-            throw new NotImplementedException();
+            if (!_traefikConfiguration.ServicesMapping.TryGetValue(publicName, out var serviceName))
+            {
+                return null;
+            }
+
+            return serviceName;
         }
     }
 }
