@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "taxinfo/by-cuit/20-31111111-7",
+      "launchUrl": "",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -20,7 +20,7 @@
     "DopplerCustomDomain": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "taxinfo/by-cuit/20-31111111-7",
+      "launchUrl": "",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

@@ -1,3 +1,4 @@
+using DopplerCustomDomain.Consul;
 using DopplerCustomDomain.CustomDomainProvider;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,8 +20,10 @@ namespace DopplerCustomDomain
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<TraefikConfiguration>(Configuration.GetSection("TraefikConfiguration"));
+            services.Configure<ConsulOptions>(Configuration.GetSection("ConsulOptions"));
             services.AddScoped<ICustomDomainProviderService, CustomDomainProviderService>();
             services.AddSingleton<IServiceNameResolver, ServiceNameResolver>();
+            services.AddHttpClient<IConsulHttpClient, ConsulHttpClient>();
             services.AddDopplerSecurity();
             services.AddControllers()
                 .AddJsonOptions(options =>

@@ -1,11 +1,8 @@
 using DopplerCustomDomain.CustomDomainProvider;
-using Flurl.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
-using Tavis.UriTemplates;
 
 namespace DopplerCustomDomain.Controllers
 {
@@ -25,6 +22,36 @@ namespace DopplerCustomDomain.Controllers
             _logger = logger;
             _customDomainProviderService = customDomainProviderService;
             _serviceNameResolver = serviceNameResolver;
+        }
+
+        [HttpGet("/")]
+        [AllowAnonymous]
+        public string Home()
+        {
+            return "Custom Domain Service";
+        }
+
+
+        [HttpPut("/{domainName}")]
+        public async Task<IActionResult> CreateCustomDomain([FromRoute] string domainName, [FromBody] DomainConfiguration domainConfiguration)
+        {
+            var serviceName = _serviceNameResolver.Resolve(domainConfiguration.service);
+
+            if (string.IsNullOrEmpty(serviceName))
+            {
+                return new NotFoundObjectResult($"Cannot find the service called: {domainConfiguration}");
+            }
+
+            await _customDomainProviderService.CreateCustomDomain(domainName, serviceName);
+            return new OkObjectResult("Custom Domain Created");
+        }
+
+        [HttpDelete("/{domain}")]
+        public async Task<IActionResult> DeleteCustomDomain([FromRoute] string domain)
+        {
+            await _customDomainProviderService.DeleteCustomDomain(domain);
+
+            return new OkObjectResult("Custom Domain Deleted");
         }
     }
 }
