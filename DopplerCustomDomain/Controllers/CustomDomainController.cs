@@ -24,6 +24,14 @@ namespace DopplerCustomDomain.Controllers
             _serviceNameResolver = serviceNameResolver;
         }
 
+        [HttpGet("/")]
+        [AllowAnonymous]
+        public string Home()
+        {
+            return "Custom Domain Service";
+        }
+
+
         [HttpPut("/{domainName}")]
         public async Task<IActionResult> CreateCustomDomain([FromRoute] string domainName, [FromBody] DomainConfiguration domainConfiguration)
         {
