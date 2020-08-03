@@ -12,7 +12,7 @@ namespace DopplerCustomDomain.Test
 {
     public class CustomDomainConsulHttpClientTest
     {
-        private readonly IOptions<ConsulOptions> _options; 
+        private readonly IOptions<ConsulOptions> _options;
 
         private readonly string _endpoint;
         private readonly string _value;
@@ -62,7 +62,7 @@ namespace DopplerCustomDomain.Test
 
             var sut = new ConsulHttpClient(clientMock.Object, _options);
 
-            
+
             // Assert
             await Assert.ThrowsAsync<HttpRequestException>(async () =>
             {
