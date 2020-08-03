@@ -39,7 +39,7 @@ namespace DopplerCustomDomain.Controllers
 
             if (string.IsNullOrEmpty(serviceName))
             {
-                return new NotFoundObjectResult($"Cannot find the service called: {domainConfiguration}");
+                return new NotFoundObjectResult($"Cannot find the service called: {domainConfiguration.service}");
             }
 
             await _customDomainProviderService.CreateCustomDomain(domainName, serviceName);
