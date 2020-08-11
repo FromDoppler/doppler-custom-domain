@@ -20,6 +20,12 @@ namespace Microsoft.Extensions.DependencyInjection
                         .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                         .RequireAuthenticatedUser()
                         .Build();
+                    o.AddPolicy(nameof(IsSuperUserRequirement), policy =>
+                    {
+                        policy.Requirements.Add(new IsSuperUserRequirement());
+                        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                        policy.Build();
+                    });
                 });
 
             services

@@ -1,4 +1,5 @@
 using DopplerCustomDomain.CustomDomainProvider;
+using DopplerCustomDomain.DopplerSecurity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DopplerCustomDomain.Controllers
 {
-    [Authorize]
+    [Authorize(nameof(IsSuperUserRequirement))]
     [ApiController]
     public class CustomDomainController
     {
