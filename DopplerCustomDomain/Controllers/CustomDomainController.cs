@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DopplerCustomDomain.Controllers
 {
-    [Authorize(nameof(IsSuperUserRequirement))]
+    [Authorize]
     [ApiController]
     public class CustomDomainController
     {

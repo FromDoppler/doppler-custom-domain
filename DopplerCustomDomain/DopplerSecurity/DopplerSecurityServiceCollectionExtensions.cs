@@ -18,14 +18,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     o.DefaultPolicy = new AuthorizationPolicyBuilder()
                         .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                        .AddRequirements(new IsSuperUserRequirement())
                         .RequireAuthenticatedUser()
                         .Build();
-                    o.AddPolicy(nameof(IsSuperUserRequirement), policy =>
-                    {
-                        policy.Requirements.Add(new IsSuperUserRequirement());
-                        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-                        policy.Build();
-                    });
                 });
 
             services
