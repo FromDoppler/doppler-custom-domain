@@ -1,4 +1,5 @@
 using DopplerCustomDomain.CustomDomainProvider;
+using DopplerCustomDomain.DopplerSecurity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

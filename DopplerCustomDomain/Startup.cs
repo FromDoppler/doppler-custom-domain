@@ -1,5 +1,7 @@
 using DopplerCustomDomain.Consul;
 using DopplerCustomDomain.CustomDomainProvider;
+using DopplerCustomDomain.DopplerSecurity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +27,7 @@ namespace DopplerCustomDomain
             services.AddSingleton<IServiceNameResolver, ServiceNameResolver>();
             services.AddHttpClient<IConsulHttpClient, ConsulHttpClient>();
             services.AddDopplerSecurity();
+            services.AddSingleton<IAuthorizationHandler, IsSuperUserHandler>();
             services.AddControllers()
                 .AddJsonOptions(options =>
                 {
