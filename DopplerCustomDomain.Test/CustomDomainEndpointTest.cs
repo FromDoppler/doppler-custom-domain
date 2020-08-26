@@ -97,16 +97,17 @@ namespace DopplerCustomDomain.Test
         }
 
         [Theory]
-        [InlineData("forms-landing", "doppler_forms_service_prod@docker")]
-        [InlineData("relay-tracking", "relay-actions-api_service_prod@docker")]
-        public async Task Create_custom_domain_should_send_all_keys_to_consul_when_success(string serviceName, string expectedServiceConfiguration)
+        [InlineData("forms-landing", "doppler_forms_service_prod@docker", "HTTP_HTTPS")]
+        [InlineData("relay-tracking", "relay-actions-api_service_prod@docker", "HTTP_HTTPS")]
+        public async Task Create_custom_domain_should_send_all_keys_to_consul_when_success(string serviceName, string expectedServiceConfiguration, string ruleTypeName)
         {
             // Arrange
             var fixture = new Fixture();
             var domainName = fixture.Create<string>();
             var domainConfiguration = new DomainConfiguration
             {
-                service = serviceName
+                service = serviceName,
+                ruleType = ruleTypeName
             };
             var expectedHttpsBaseUrl = $"/v1/kv/traefik/http/routers/https_{domainName}";
             var expectedHttpBaseUrl = $"/v1/kv/traefik/http/routers/http_{domainName}";

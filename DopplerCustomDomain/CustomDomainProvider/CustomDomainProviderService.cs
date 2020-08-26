@@ -16,20 +16,28 @@ namespace DopplerCustomDomain.CustomDomainProvider
             _consulHttpClient = consulHttpClient;
         }
 
-        public async Task CreateCustomDomain(string domain, string service)
+        public async Task CreateCustomDomain(string domain, string service, TraefikRuleTypeEnum ruleType)
         {
             var httpsBaseUrl = GenerateHttpsRouteConsulUrl(domain);
             var httpBaseUrl = GenerateHttpRouteConsulUrl(domain);
 
-            await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/entrypoints", "websecure_entry_point");
-            await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/tls/certresolver", "letsencryptresolver");
-            await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/rule", $"Host(`{domain}`)");
-            await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/service", service);
+            if (ruleType == TraefikRuleTypeEnum.HTTP_HTTPS ||
+                ruleType == TraefikRuleTypeEnum.HTTP_HTTPS_WITHOUT_REDIRECT)
+            {
+                await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/entrypoints", "websecure_entry_point");
+                await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/tls/certresolver", "letsencryptresolver");
+                await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/rule", $"Host(`{domain}`)");
+                await _consulHttpClient.PutStringAsync($"{httpsBaseUrl}/service", service);
+            }
 
             await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/entrypoints", "web_entry_point");
             await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/service", service);
             await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/rule", $"Host(`{domain}`)");
-            await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/middlewares", "http_to_https@file");
+            if (ruleType != TraefikRuleTypeEnum.HTTP_HTTPS_WITHOUT_REDIRECT &&
+                ruleType != TraefikRuleTypeEnum.HTTP)
+            {
+                await _consulHttpClient.PutStringAsync($"{httpBaseUrl}/middlewares", "http_to_https@file");
+            }
         }
 
         public async Task DeleteCustomDomain(string domain)
