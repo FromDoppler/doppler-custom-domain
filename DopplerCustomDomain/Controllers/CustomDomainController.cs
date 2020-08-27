@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DopplerCustomDomain.Controllers
@@ -44,13 +45,7 @@ namespace DopplerCustomDomain.Controllers
                 return new NotFoundObjectResult($"Cannot find the service called: {domainConfiguration.service}");
             }
 
-            TraefikRuleTypeEnum ruleTypeEnum;
-            if (!Enum.TryParse(domainConfiguration.ruleType, out ruleTypeEnum))
-            {
-                ruleTypeEnum = TraefikRuleTypeEnum.HTTP;
-            }
-
-            await _customDomainProviderService.CreateCustomDomain(domainName, serviceName, ruleTypeEnum);
+            await _customDomainProviderService.CreateCustomDomain(domainName, serviceName, domainConfiguration.ruleType);
             return new OkObjectResult("Custom Domain Created");
         }
 

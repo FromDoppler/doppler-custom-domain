@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace DopplerCustomDomain.CustomDomainProvider
 {
-    public enum TraefikRuleTypeEnum
+    public enum RuleType
     {
-        HTTP_HTTPS,
-        HTTP_HTTPS_WITHOUT_REDIRECT,
-        HTTP
+        HttpsOnly = 1,
+        HttpsAndHttp,
+        HttpOnly
     }
 }
