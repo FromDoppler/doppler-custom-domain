@@ -97,9 +97,9 @@ namespace DopplerCustomDomain.Test
         }
 
         [Theory]
-        [InlineData("forms-landing", "doppler_forms_service_prod@docker", "HTTP_HTTPS")]
-        [InlineData("relay-tracking", "relay-actions-api_service_prod@docker", "HTTP_HTTPS")]
-        public async Task Create_custom_domain_should_send_all_keys_to_consul_when_success(string serviceName, string expectedServiceConfiguration, string ruleTypeName)
+        [InlineData("forms-landing", "doppler_forms_service_prod@docker", RuleType.HttpsOnly)]
+        [InlineData("relay-tracking", "relay-actions-api_service_prod@docker", RuleType.HttpsOnly)]
+        public async Task Create_custom_domain_should_send_all_keys_to_consul_when_success(string serviceName, string expectedServiceConfiguration, RuleType ruleTypeName)
         {
             // Arrange
             var fixture = new Fixture();
