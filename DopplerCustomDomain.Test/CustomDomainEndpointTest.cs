@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -38,9 +36,10 @@ namespace DopplerCustomDomain.Test
             var fixture = new Fixture();
 
             var domainName = fixture.Create<string>();
-            var domainConfiguration = new DomainConfiguration
+            var domainConfiguration = new
             {
-                service = "relay-tracking"
+                service = "relay-tracking",
+                ruleType = "HttpsOnly"
             };
 
             var consulHttpClientMock = new Mock<IConsulHttpClient>();
@@ -72,9 +71,10 @@ namespace DopplerCustomDomain.Test
 
             var domainName = fixture.Create<string>();
             var serviceName = fixture.Create<string>();
-            var domainConfiguration = new DomainConfiguration
+            var domainConfiguration = new
             {
-                service = serviceName
+                service = serviceName,
+                ruleType = "HttpsOnly"
             };
 
             var consulHttpClientMock = new Mock<IConsulHttpClient>();
@@ -104,10 +104,10 @@ namespace DopplerCustomDomain.Test
             // Arrange
             var fixture = new Fixture();
             var domainName = fixture.Create<string>();
-            var domainConfiguration = new DomainConfiguration
+            var domainConfiguration = new
             {
                 service = serviceName,
-                ruleType = ruleTypeName
+                ruleType = ruleTypeName.ToString()
             };
             var expectedHttpsBaseUrl = $"/v1/kv/traefik/http/routers/https_{domainName}";
             var expectedHttpBaseUrl = $"/v1/kv/traefik/http/routers/http_{domainName}";
@@ -260,8 +260,11 @@ namespace DopplerCustomDomain.Test
 
             consulHttpClientMock.Verify(
                 x => x.DeleteRecurseAsync($"{httpBaseUrl}"),
-                Times.Once);
+                Times.Once());
 
+            consulHttpClientMock.Verify(
+                x => x.DeleteRecurseAsync($"{httpBaseUrl}/middlewares"),
+                Times.Once());
 
             consulHttpClientMock.VerifyNoOtherCalls();
         }
@@ -272,9 +275,10 @@ namespace DopplerCustomDomain.Test
             // Arrange
             var fixture = new Fixture();
             var domainName = fixture.Create<string>();
-            var domainConfiguration = new DomainConfiguration
+            var domainConfiguration = new
             {
-                service = "relay-tracking"
+                service = "relay-tracking",
+                ruleType = "HttpsOnly"
             };
 
             var consulHttpClientMock = new Mock<IConsulHttpClient>();
@@ -316,9 +320,10 @@ namespace DopplerCustomDomain.Test
             var fixture = new Fixture();
 
             var domainName = fixture.Create<string>();
-            var domainConfiguration = new DomainConfiguration
+            var domainConfiguration = new
             {
-                service = "relay-tracking"
+                service = "relay-tracking",
+                ruleType = "HttpsOnly"
             };
 
             var consulHttpClientMock = new Mock<IConsulHttpClient>();
