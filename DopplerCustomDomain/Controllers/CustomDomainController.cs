@@ -3,6 +3,8 @@ using DopplerCustomDomain.DopplerSecurity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DopplerCustomDomain.Controllers
@@ -43,7 +45,7 @@ namespace DopplerCustomDomain.Controllers
                 return new NotFoundObjectResult($"Cannot find the service called: {domainConfiguration.service}");
             }
 
-            await _customDomainProviderService.CreateCustomDomain(domainName, serviceName);
+            await _customDomainProviderService.CreateCustomDomain(domainName, serviceName, domainConfiguration.ruleType);
             return new OkObjectResult("Custom Domain Created");
         }
 

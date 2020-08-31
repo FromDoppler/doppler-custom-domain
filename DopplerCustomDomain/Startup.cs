@@ -4,9 +4,11 @@ using DopplerCustomDomain.DopplerSecurity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Text.Json.Serialization;
 
 namespace DopplerCustomDomain
 {
@@ -34,6 +36,7 @@ namespace DopplerCustomDomain
                     options.JsonSerializerOptions.WriteIndented = true;
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
                     options.JsonSerializerOptions.PropertyNamingPolicy = null!;
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
                 });
             services.AddCors();
         }
