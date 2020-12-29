@@ -4,6 +4,7 @@ commit=""
 name=""
 version=""
 versionPre=""
+imageName=""
 
 print_help () {
     echo ""
@@ -12,23 +13,27 @@ print_help () {
     echo "Build project's docker images and publish them to DockerHub"
     echo ""
     echo "Options:"
+    echo "  -i, --image, image name (mandatory)"
     echo "  -c, --commit (mandatory)"
-    echo "  -n, --name"
-    echo "  -v, --version"
+    echo "  -n, --name, version name"
+    echo "  -v, --version, version number"
     echo "  -s, --pre-version-suffix (optional, only with version)"
     echo "  -h, --help"
     echo "Only one of name or version parameters is required, and cannot be included together."
     echo
     echo "Examples:"
-    echo "  sh build-n-publish.sh --commit=aee25c286a7c8265e2b32ccc293f5ab0bd7a9d57 --version=v1.2.11"
-    echo "  sh build-n-publish.sh --commit=e247ba0527665eb9dd7ffbff00bb42e5073cd457 --version=v0.0.0 --pre-version-suffix=commit-e247ba0527665eb9dd7ffbff00bb42e5073cd457"
-    echo "  sh build-n-publish.sh -c=94f85efb9c3689f409104ef7cde6813652ca59fb -v=v12.34.5"
-    echo "  sh build-n-publish.sh -c=94f85efb9c3689f409104ef7cde6813652ca59fb -v=v12.34.5 -s=beta1"
-    echo "  sh build-n-publish.sh -c=94f85efb9c3689f409104ef7cde6813652ca59fb -v=v12.34.5 -s=pr123"
+    echo "  sh build-n-publish.sh --image=dopplerdock/doppler-custom-domain --commit=aee25c286a7c8265e2b32ccc293f5ab0bd7a9d57 --version=v1.2.11"
+    echo "  sh build-n-publish.sh --image=dopplerdock/doppler-custom-domain --commit=e247ba0527665eb9dd7ffbff00bb42e5073cd457 --version=v0.0.0 --pre-version-suffix=commit-e247ba0527665eb9dd7ffbff00bb42e5073cd457"
+    echo "  sh build-n-publish.sh -i=dopplerdock/doppler-custom-domain -c=94f85efb9c3689f409104ef7cde6813652ca59fb -v=v12.34.5"
+    echo "  sh build-n-publish.sh -i=dopplerdock/doppler-custom-domain -c=94f85efb9c3689f409104ef7cde6813652ca59fb -v=v12.34.5 -s=beta1"
+    echo "  sh build-n-publish.sh -i=dopplerdock/doppler-custom-domain -c=94f85efb9c3689f409104ef7cde6813652ca59fb -v=v12.34.5 -s=pr123"
 }
 
 for i in "$@" ; do
 case $i in
+    -i=*|--image=*)
+    imageName="${i#*=}"
+    ;;
     -c=*|--commit=*)
     commit="${i#*=}"
     ;;
@@ -47,6 +52,13 @@ case $i in
     ;;
 esac
 done
+
+if [ -z "${imageName}" ]
+then
+  echo "Error: image parameter is mandatory"
+  print_help
+  exit 1
+fi
 
 if [ -z "${commit}" ]
 then
@@ -167,15 +179,10 @@ then
   canonicalTag=${versionFull}
 fi
 
-imageName=fromdoppler/doppler-custom-domain
-
 docker build \
     -t "${imageName}:${canonicalTag}" \
     --build-arg version="${versionFull}" \
     .
-
-# TODO: It could break concurrent deployments with different docker accounts
-docker login -u="${DOCKER_WRITTER_USERNAME}" -p="${DOCKER_WRITTER_PASSWORD}"
 
 if [ -n "${version}" ]
 then

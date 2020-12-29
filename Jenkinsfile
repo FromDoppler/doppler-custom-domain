@@ -28,46 +28,104 @@ pipeline {
                 .'''
             }
         }
-        stage('Publish pre-release images from pull request') {
-            when {
-                changeRequest target: 'master'
+        stage('Publish in fromdoppler') {
+            environment {
+                DOCKER_CREDENTIALS_ID = "dockerhub_fromdoppler"
+                DOCKER_IMAGE_NAME = "fromdoppler/doppler-custom-domain"
             }
-            steps {
-                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --name=pr-${CHANGE_ID}'
-            }
-        }
-        stage('Publish pre-release images from master') {
-            when {
-                branch 'master'
-            }
-            steps {
-                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --name=master'
-            }
-        }
-        stage('Publish pre-release images from INT') {
-            when {
-                branch 'INT'
-            }
-            steps {
-                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --name=INT'
-            }
-        }
-        stage('Publish final version images') {
-            when {
-                expression {
-                    return isVersionTag(readCurrentTag())
+            stages {
+                stage('Publish pre-release images from pull request') {
+                    when {
+                        changeRequest target: 'master'
+                    }
+                    steps {
+                        withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS_ID}", url: "") {
+                            sh 'sh build-n-publish.sh --image=${DOCKER_IMAGE_NAME} --commit=${GIT_COMMIT} --name=pr-${CHANGE_ID}'
+                        }
+                    }
+                }
+                stage('Publish pre-release images from master') {
+                    when {
+                        branch 'master'
+                    }
+                    steps {
+                        withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS_ID}", url: "") {
+                            sh 'sh build-n-publish.sh --image=${DOCKER_IMAGE_NAME} --commit=${GIT_COMMIT} --name=master'
+                        }
+                    }
+                }
+                stage('Publish pre-release images from INT') {
+                    when {
+                        branch 'INT'
+                    }
+                    steps {
+                        withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS_ID}", url: "") {
+                            sh 'sh build-n-publish.sh --image=${DOCKER_IMAGE_NAME} --commit=${GIT_COMMIT} --name=INT'
+                        }
+                    }
+                }
+                stage('Publish final version images') {
+                    when {
+                        expression {
+                            return isVersionTag(readCurrentTag())
+                        }
+                    }
+                    steps {
+                        withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS_ID}", url: "") {
+                            sh 'sh build-n-publish.sh --image=${DOCKER_IMAGE_NAME} --commit=${GIT_COMMIT} --version=${TAG_NAME}'
+                        }
+                    }
                 }
             }
-            steps {
-                sh 'sh build-n-publish.sh --commit=${GIT_COMMIT} --version=${TAG_NAME}'
-            }
         }
-        stage('Generate version') {
-            when {
-                branch 'master'
+        stage('Publish in dopplerdock') {
+            environment {
+                DOCKER_CREDENTIALS_ID = "dockerhub_dopplerdock"
+                DOCKER_IMAGE_NAME = "dopplerdock/doppler-custom-domain"
             }
-            steps {
-                sh 'echo "TODO: generate a tag automatically"'
+            stages {
+                stage('Publish pre-release images from pull request') {
+                    when {
+                        changeRequest target: 'master'
+                    }
+                    steps {
+                        withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS_ID}", url: "") {
+                            sh 'sh build-n-publish.sh --image=${DOCKER_IMAGE_NAME} --commit=${GIT_COMMIT} --name=pr-${CHANGE_ID}'
+                        }
+                    }
+                }
+                stage('Publish pre-release images from master') {
+                    when {
+                        branch 'master'
+                    }
+                    steps {
+                        withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS_ID}", url: "") {
+                            sh 'sh build-n-publish.sh --image=${DOCKER_IMAGE_NAME} --commit=${GIT_COMMIT} --name=master'
+                        }
+                    }
+                }
+                stage('Publish pre-release images from INT') {
+                    when {
+                        branch 'INT'
+                    }
+                    steps {
+                        withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS_ID}", url: "") {
+                            sh 'sh build-n-publish.sh --image=${DOCKER_IMAGE_NAME} --commit=${GIT_COMMIT} --name=INT'
+                        }
+                    }
+                }
+                stage('Publish final version images') {
+                    when {
+                        expression {
+                            return isVersionTag(readCurrentTag())
+                        }
+                    }
+                    steps {
+                        withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS_ID}", url: "") {
+                            sh 'sh build-n-publish.sh --image=${DOCKER_IMAGE_NAME} --commit=${GIT_COMMIT} --version=${TAG_NAME}'
+                        }
+                    }
+                }
             }
         }
     }
