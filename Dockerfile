@@ -10,7 +10,7 @@ WORKDIR /src
 COPY ./*.sh ./
 RUN shellcheck -e SC1091,SC1090 ./*.sh
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS restore
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.405-buster AS restore
 WORKDIR /src
 COPY ./*.sln ./
 COPY */*.csproj ./
