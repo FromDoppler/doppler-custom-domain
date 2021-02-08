@@ -19,20 +19,27 @@ namespace DopplerCustomDomain.DopplerSecurity
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
             IsSuperUserRequirement requirement)
         {
-            if (!context.User.HasClaim(c => c.Type.Equals("isSU")))
+            var isSuperUserClaim = context.User.FindFirst(c => c.Type.Equals("isSU"));
+
+            if (isSuperUserClaim == null)
             {
                 _logger.LogWarning("The token hasn't super user permissions.");
                 return Task.CompletedTask;
             }
 
-            var isSuperUser = bool.Parse(context.User.FindFirst(c => c.Type.Equals("isSU")).Value);
-            if (isSuperUser)
+            if (!bool.TryParse(isSuperUserClaim.Value, out var isSuperUser))
             {
-                context.Succeed(requirement);
+                _logger.LogWarning($"The token's super user permissions value is invalid: `{isSuperUserClaim.Value}`.");
                 return Task.CompletedTask;
             }
 
-            _logger.LogWarning("The token super user permissions is false.");
+            if (!isSuperUser)
+            {
+                _logger.LogWarning("The token super user permissions is false.");
+                return Task.CompletedTask;
+            }
+
+            context.Succeed(requirement);
             return Task.CompletedTask;
         }
     }
