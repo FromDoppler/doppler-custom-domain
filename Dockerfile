@@ -10,7 +10,7 @@ WORKDIR /src
 COPY ./*.sh ./
 RUN shellcheck -e SC1091,SC1090 ./*.sh
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS restore
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS restore
 WORKDIR /src
 COPY ./*.sln ./
 COPY */*.csproj ./
@@ -31,7 +31,7 @@ RUN dotnet test
 FROM build AS publish
 RUN dotnet publish "DopplerCustomDomain/DopplerCustomDomain.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS final
 # We need these changes in openssl.cnf to access to our SQL Server instances in QA and INT environments
 # See more information in https://stackoverflow.com/questions/56473656/cant-connect-to-sql-server-named-instance-from-asp-net-core-running-in-docker/59391426#59391426
 RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
