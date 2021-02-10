@@ -2,5 +2,29 @@
     "cSpell.words": [
         "ASPNETCORE",
         "Cuit"
-    ]
+    ],
+    "rest-client.environmentVariables": {
+        "$shared": {
+            "apisIntDomain": "apisint.fromdoppler.net",
+            "apisQaDomain": "apisqa.fromdoppler.net",
+            "apisProdDomain": "apis.fromdoppler.com",
+            "consulProdDomain": "172.25.48.222:18500",
+            "consulTestDomain": "192.168.6.141:18500"
+        },
+        "int": {
+            "apisDomain": "{{$shared apisIntDomain}}",
+            "dopplerToken": "{{$shared dopplerTestToken}}",
+            "consulDomain": "{{$shared consulTestDomain}}"
+        },
+        "qa": {
+            "apisDomain": "{{$shared apisQaDomain}}",
+            "dopplerToken": "{{$shared dopplerTestToken}}",
+            "consulDomain": "{{$shared consulTestDomain}}"
+        },
+        "prod": {
+            "apisDomain": "{{$shared apisProdDomain}}",
+            "dopplerToken": "{{$shared dopplerProdToken}}",
+            "consulDomain": "{{$shared consulProdDomain}}"
+        }
+    }
 }

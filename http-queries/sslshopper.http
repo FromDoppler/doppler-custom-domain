@@ -1,0 +1,13 @@
+@domain=trk.relaytrk.com
+
+### Get result
+# Parse results:
+# * OK: contains: `<h3>The certificate should be trusted by all major web browsers (all the correct intermediate certificates are installed).</h3>`
+# * Expired: contains: `expired`
+# * Others?
+# Warning! take into account that the result could be cached, verify the response.
+GET https://www.sslshopper.com/assets/snippets/sslshopper/ajax/ajax_check_ssl.php?hostname={{domain}}&g-recaptcha-response=&rand=498
+X-Requested-With: XMLHttpRequest
+
+### UI Page
+GET https://www.sslshopper.com/ssl-checker.html?hostname=trk.relaytrk.com

@@ -1,0 +1,12 @@
+# We need to be connected to our VPNs to run these queries
+
+# Variables defined in settings.json rest-client.environmentVariables:
+# (See https://marketplace.visualstudio.com/items?itemName=humao.rest-client#environment-variables or call me)
+# * @consulDomain
+
+### Get all defined routers
+GET http://{{consulDomain}}/v1/kv/traefik/http/routers/?recurse=true
+
+### Get the keys of all defined routers
+# If we filter the result, it is possible identify the domains
+GET http://{{consulDomain}}/v1/kv/traefik/http/routers/?keys
