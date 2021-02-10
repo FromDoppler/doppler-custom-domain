@@ -1,7 +1,7 @@
 {
   "name": "doppler-custom-domain",
   "private": true,
-  "dependencies": {
+  "devDependencies": {
     "eclint": "^2.8.1",
     "prettier": "^2.1.2"
   },
