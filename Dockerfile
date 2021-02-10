@@ -40,7 +40,6 @@ RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /usr/lib/ssl/openssl.cnf
 RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /usr/lib/ssl/openssl.cnf
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
 COPY --from=publish /app/publish .
 ARG version=unknown
 RUN echo $version > /app/wwwroot/version.txt
