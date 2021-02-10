@@ -22,7 +22,7 @@ namespace DopplerCustomDomain.Test
             AuthorizationPolicy policy,
             AuthenticateResult authenticationResult,
             HttpContext context,
-            object resource)
+            object? resource)
         => Task.FromResult(PolicyAuthorizationResult.Success());
     }
 }

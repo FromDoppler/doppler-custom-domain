@@ -29,7 +29,7 @@ namespace DopplerCustomDomain
                     // for each configuration entry. For example, you can create
                     // the file `/run/secrets/Logging__LogLevel__Default` with
                     // the content `Trace`. See:
-                    // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-3.1#key-per-file-configuration-provider
+                    // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#key-per-file-configuration-provider
                     configurationBuilder.AddKeyPerFile("/run/secrets", true);
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
