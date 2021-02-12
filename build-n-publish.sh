@@ -181,7 +181,7 @@ fi
 
 docker build \
     -t "${imageName}:${canonicalTag}" \
-    --build-arg version="${versionFull}" \
+    --build-arg version="${imageName}:${canonicalTag}" \
     .
 
 if [ -n "${version}" ]
