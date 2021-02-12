@@ -1,0 +1,7 @@
+@customDomain=midominio.com
+
+### Check connection with a relay actions service using HTTP
+GET http://{{customDomain}}/home/index
+
+### Check connection with a relay actions service using HTTPS
+GET https://{{customDomain}}/home/index

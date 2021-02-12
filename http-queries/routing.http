@@ -1,0 +1,40 @@
+# Variables defined in settings.json rest-client.environmentVariables:
+# (See https://marketplace.visualstudio.com/items?itemName=humao.rest-client#environment-variables or call me)
+# * @dopplerToken
+# * @apisDomain
+
+@customDomain=midominio.com
+
+# Find avaliable options in `RuleType.cs`
+# (Both HTTP and HTTPS accept requests)
+@ruleType=HttpsAndHttp
+# (HTTP redirects to HTTPS)
+# @ruleType=HttpsOnly
+# (Only HTTP accepts requests)
+# @ruleType=HttpOnly
+
+# Find avaliable options in `appsettings > TraefikConfiguration > ServicesMapping`
+@service=relay-tracking
+# @service=relay-tracking-iis
+# @service=forms-landing
+
+###
+GET https://{{apisDomain}}/routing/version.txt
+
+###
+PUT https://{{apisDomain}}/routing/{{customDomain}}
+Authorization: Bearer {{dopplerToken}}
+Content-Type: application/json
+
+{
+    "ruleType": "{{ruleType}}",
+    "service": "{{service}}"
+}
+
+###
+DELETE https://{{apisDomain}}/routing/{{customDomain}}
+Authorization: Bearer {{dopplerToken}}
+
+### Check ip of a domain with a doppler custom domain service (forcing virtualhost)
+GET https://{{customDomain}}/routing/version.txt
+Host: apis.fromdoppler.com

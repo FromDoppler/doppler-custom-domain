@@ -27,6 +27,11 @@ indent_size = 4
 charset = utf-8-bom
 indent_style = tab
 
-[{.vscode/**,**/Properties/launchSettings.json,*.[sS]ecret.*}]
-indent_size = unset
+# Generated and binary files
+[{**.png,**/obj/**,**/bin/**,.vscode/**,**/Properties/launchSettings.json,*.[sS]ecret.*}]
+charset = unset
+end_of_line = unset
 insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset

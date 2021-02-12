@@ -1,0 +1,4 @@
+@customDomain=midominio.com
+
+### Check connection with a doppler pages service
+GET http://{{customDomain}}/version.txt
