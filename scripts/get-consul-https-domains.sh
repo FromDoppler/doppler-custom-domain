@@ -13,6 +13,15 @@ print_help () {
     echo "  sh get-consul-https-domains.sh | sh verify-domains.sh | grep FAIL | cut -d',' -f 1 | sh delete-domains.sh"
 }
 
+for i in "$@" ; do
+case $i in
+    -h|--help)
+    print_help
+    exit 0
+    ;;
+esac
+done
+
 # Stop script on NZEC
 set -e
 # Stop script if unbound variable found (use ${var:-} if intentional)
