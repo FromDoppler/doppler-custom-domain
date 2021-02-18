@@ -12,6 +12,15 @@ print_help () {
 
 # TODO: complete the JWT token with an isSU one or do something to read it from an environment variable
 # token="eyJhbGciOiJSUzI1NiIsI...
+for i in "$@" ; do
+case $i in
+    -h|--help)
+    print_help
+    exit 0
+    ;;
+esac
+done
+
 while read -r domain; do
   echo "${domain}"
   curl --request DELETE \

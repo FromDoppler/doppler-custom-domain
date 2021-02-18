@@ -10,6 +10,15 @@ print_help () {
     echo "  cat example-domains.txt | sh verify-certificates.sh"
 }
 
+for i in "$@" ; do
+case $i in
+    -h|--help)
+    print_help
+    exit 0
+    ;;
+esac
+done
+
 function check_certificate {
   # TODO: add a specific endpoint with a wellknow and unambiguous response
   responseBody="$(curl \

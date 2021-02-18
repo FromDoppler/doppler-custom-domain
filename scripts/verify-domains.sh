@@ -12,6 +12,15 @@ print_help () {
     echo "  cat example-domains.txt | sh verify-domains.sh | grep FAIL | cut -d',' -f 1 | sh delete-domains.sh"
 }
 
+for i in "$@" ; do
+case $i in
+    -h|--help)
+    print_help
+    exit 0
+    ;;
+esac
+done
+
 acceptedIps=(184.106.28.222)
 googleDNS="8.8.8.8"
 cloudflareDNS="1.1.1.1"
