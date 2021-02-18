@@ -58,16 +58,16 @@ function check_our_service_is_behind_the_ip {
   [[ "${responseBody}" == dopplerdock/doppler-custom-domain:* ]] && echo "YES" || echo "NO"
 }
 
-echo "Domain, Google DNS IP, Cloudflare  DNS IP, OpenDNS DNS IP, Access to our service, Veredict"
+echo "Domain, Google DNS IP, Cloudflare  DNS IP, OpenDNS DNS IP, Access to our service, Verdict"
 while read -r domain; do
   googleDnsIp="$(get_ipaddr "${googleDNS}" "${domain}")"
   cloudflareDnsIp="$(get_ipaddr "${cloudflareDNS}" "${domain}")"
   openDnsIp="$(get_ipaddr "${openDNS}" "${domain}")"
   accessToOurService="$(check_our_service_is_behind_the_ip "${domain}")"
   if [ "${accessToOurService}" = "YES" ] || [[ ${acceptedIps[*]} =~ (^|[[:space:]])"${googleDnsIp}"($|[[:space:]]) ]] || [[ ${acceptedIps[*]} =~ (^|[[:space:]])"${cloudflareDnsIp}"($|[[:space:]]) ]] || [[ ${acceptedIps[*]} =~ (^|[[:space:]])"${openDnsIp}"($|[[:space:]]) ]]; then
-    veredict="OK"
+    verdict="OK"
   else
-    veredict="FAIL"
+    verdict="FAIL"
   fi
-  echo "${domain}, ${googleDnsIp}, ${cloudflareDnsIp}, ${openDnsIp}, ${accessToOurService}, ${veredict}"
+  echo "${domain}, ${googleDnsIp}, ${cloudflareDnsIp}, ${openDnsIp}, ${accessToOurService}, ${verdict}"
 done
