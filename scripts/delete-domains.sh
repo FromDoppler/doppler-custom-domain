@@ -22,9 +22,9 @@ esac
 done
 
 while read -r domain; do
-  echo "${domain}"
+  echo "${domain} $(
   curl --request DELETE \
+    -s -o /dev/null -w "%{http_code}" \
     --url "https://apis.fromdoppler.com/routing/${domain}" \
-    --header "authorization: Bearer ${token}"
-  echo ""
+    --header "authorization: Bearer ${token}")"
 done
