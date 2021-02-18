@@ -58,7 +58,19 @@ function check_our_service_is_behind_the_ip {
   [[ "${responseBody}" == dopplerdock/doppler-custom-domain:* ]] && echo "YES" || echo "NO"
 }
 
-echo "Domain, Google DNS IP, Cloudflare  DNS IP, OpenDNS DNS IP, Access to our service, Verdict"
+function check_certificate {
+  # TODO: add a specific endpoint with a wellknow and unambiguous response
+  responseBody="$(curl \
+    --request GET \
+    --url "https://${1}/routing/version.txt" \
+    --header 'host: apis.fromdoppler.com' \
+    -s \
+    )"
+  resultCode=$?
+  ([[ "${resultCode}" == "0" ]] && echo "OK") || ([[ "${resultCode}" == "60" ]] && echo "WRONG" || echo "UNKNOWN")
+}
+
+echo "Domain, Google DNS IP, Cloudflare  DNS IP, OpenDNS DNS IP, Access to our service, Verdict, Certificate"
 while read -r domain; do
   googleDnsIp="$(get_ipaddr "${googleDNS}" "${domain}")"
   cloudflareDnsIp="$(get_ipaddr "${cloudflareDNS}" "${domain}")"
@@ -66,8 +78,10 @@ while read -r domain; do
   accessToOurService="$(check_our_service_is_behind_the_ip "${domain}")"
   if [ "${accessToOurService}" = "YES" ] || [[ ${acceptedIps[*]} =~ (^|[[:space:]])"${googleDnsIp}"($|[[:space:]]) ]] || [[ ${acceptedIps[*]} =~ (^|[[:space:]])"${cloudflareDnsIp}"($|[[:space:]]) ]] || [[ ${acceptedIps[*]} =~ (^|[[:space:]])"${openDnsIp}"($|[[:space:]]) ]]; then
     verdict="OK"
+    certificate="$(check_certificate "${domain}")"
   else
     verdict="FAIL"
+    certificate="UNKNOWN"
   fi
-  echo "${domain}, ${googleDnsIp}, ${cloudflareDnsIp}, ${openDnsIp}, ${accessToOurService}, ${verdict}"
+  echo "${domain}, ${googleDnsIp}, ${cloudflareDnsIp}, ${openDnsIp}, ${accessToOurService}, ${verdict}, ${certificate}"
 done
