@@ -45,9 +45,9 @@ relaytrk.fromdoppler.com
 
 It uses two mechanism to validate:
 
-* **Resolved IP address** - The IP is resolved using _Google DNS_, _Cloudflare DNS_ and _OpenDNS_ and compared with a list of our accepted IPs.
+- **Resolved IP address** - The IP is resolved using _Google DNS_, _Cloudflare DNS_ and _OpenDNS_ and compared with a list of our accepted IPs.
 
-* **Verify server response** - We uses the _host_ header to try to resolve our _routing_ service in place of the domain's one and then the result is compared with our expected result.
+- **Verify server response** - We uses the _host_ header to try to resolve our _routing_ service in place of the domain's one and then the result is compared with our expected result.
 
 By the moment we are being permissive: if one of these criteria is successful, we consider that the domain is well configured.
 
