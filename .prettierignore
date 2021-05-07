@@ -22,3 +22,6 @@ Dockerfile
 Jenkinsfile
 yarn.lock
 *.[sS]ecret.*
+*.csv
+*.key
+*.png
