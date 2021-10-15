@@ -4,7 +4,6 @@ using DopplerCustomDomain.CustomDomainProvider;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using System.Net;
 using System.Net.Http;
@@ -50,7 +49,6 @@ namespace DopplerCustomDomain.Test
 
             var client = appFactory.WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
             {
-                services.RemoveAll<IConsulHttpClient>();
                 services.AddSingleton(consulHttpClientMock.Object);
             })).CreateClient();
 
@@ -120,7 +118,6 @@ namespace DopplerCustomDomain.Test
             var client = appFactory
                 .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
                 {
-                    services.RemoveAll<IConsulHttpClient>();
                     services.AddSingleton(consulHttpClientMock.Object);
                 })).CreateClient();
 
@@ -183,7 +180,6 @@ namespace DopplerCustomDomain.Test
             var client = appFactory
                 .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
                 {
-                    services.RemoveAll<IConsulHttpClient>();
                     services.AddSingleton(consulHttpClientMock.Object);
                 })).CreateClient();
 
@@ -211,7 +207,6 @@ namespace DopplerCustomDomain.Test
             var client = appFactory
                 .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
                 {
-                    services.RemoveAll<IConsulHttpClient>();
                     services.AddSingleton(consulHttpClientMock.Object);
                 })).CreateClient();
 
@@ -241,7 +236,6 @@ namespace DopplerCustomDomain.Test
             var client = appFactory
                 .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
                 {
-                    services.RemoveAll<IConsulHttpClient>();
                     services.AddSingleton(consulHttpClientMock.Object);
                 })).CreateClient();
 
@@ -289,7 +283,6 @@ namespace DopplerCustomDomain.Test
             var client = appFactory
                 .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
                 {
-                    services.RemoveAll<IConsulHttpClient>();
                     services.AddSingleton(consulHttpClientMock.Object);
                 })).CreateClient();
 
@@ -334,7 +327,6 @@ namespace DopplerCustomDomain.Test
 
             var client = appFactory.WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
             {
-                services.RemoveAll<IConsulHttpClient>();
                 services.AddSingleton(consulHttpClientMock.Object);
             })).CreateClient();
 
