@@ -28,6 +28,24 @@ namespace DopplerCustomDomain.Test
             _factory = factory;
         }
 
+        private Mock<IConsulHttpClient> CreateConsulHttpClientMock()
+        {
+            var consulHttpClientMock = new Mock<IConsulHttpClient>();
+            consulHttpClientMock.SetReturnsDefault(Task.CompletedTask);
+            return consulHttpClientMock;
+        }
+
+        private HttpClient CreateHttpClient(
+            WebApplicationFactory<Startup> appFactory,
+            IConsulHttpClient? consulHttpClient = null)
+        => appFactory.WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
+        {
+            if (consulHttpClient != null)
+            {
+                services.AddSingleton(consulHttpClient);
+            }
+        })).CreateClient();
+
         [Fact]
         public async Task Create_custom_domain_should_response_OK_when_ConsultHttpClient_do_not_fail()
         {
@@ -41,16 +59,11 @@ namespace DopplerCustomDomain.Test
                 ruleType = "HttpsOnly"
             };
 
-            var consulHttpClientMock = new Mock<IConsulHttpClient>();
-            consulHttpClientMock.Setup(x => x.PutStringAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
-
             using var appFactory = _factory.WithBypassAuthorization();
 
-            var client = appFactory.WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
-            {
-                services.AddSingleton(consulHttpClientMock.Object);
-            })).CreateClient();
+            var client = CreateHttpClient(
+                appFactory,
+                consulHttpClient: CreateConsulHttpClientMock().Object);
 
             var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}");
             request.Content = new StringContent(JsonSerializer.Serialize(domainConfiguration), Encoding.UTF8, "application/json");
@@ -75,13 +88,11 @@ namespace DopplerCustomDomain.Test
                 ruleType = "HttpsOnly"
             };
 
-            var consulHttpClientMock = new Mock<IConsulHttpClient>();
-            consulHttpClientMock.Setup(x => x.PutStringAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
-
             using var appFactory = _factory.WithBypassAuthorization();
 
-            var client = appFactory.CreateClient();
+            var client = CreateHttpClient(
+                appFactory,
+                consulHttpClient: CreateConsulHttpClientMock().Object);
 
             var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}")
             {
@@ -110,16 +121,13 @@ namespace DopplerCustomDomain.Test
             var expectedHttpsBaseUrl = $"/v1/kv/traefik/http/routers/https_{domainName}";
             var expectedHttpBaseUrl = $"/v1/kv/traefik/http/routers/http_{domainName}";
 
-            var consulHttpClientMock = new Mock<IConsulHttpClient>();
-            consulHttpClientMock.SetReturnsDefault(Task.CompletedTask);
+            var consulHttpClientMock = CreateConsulHttpClientMock();
 
             using var appFactory = _factory.WithBypassAuthorization();
 
-            var client = appFactory
-                .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
-                {
-                    services.AddSingleton(consulHttpClientMock.Object);
-                })).CreateClient();
+            var client = CreateHttpClient(
+                appFactory,
+                consulHttpClient: consulHttpClientMock.Object);
 
             var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}");
             request.Content = new StringContent(JsonSerializer.Serialize(domainConfiguration), Encoding.UTF8, "application/json");
@@ -172,16 +180,12 @@ namespace DopplerCustomDomain.Test
             // Arrange
             var fixture = new Fixture();
             var domainName = fixture.Create<string>();
-            var consulHttpClientMock = new Mock<IConsulHttpClient>();
-            consulHttpClientMock.Setup(c => c.DeleteRecurseAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
 
             using var appFactory = _factory.WithBypassAuthorization();
 
-            var client = appFactory
-                .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
-                {
-                    services.AddSingleton(consulHttpClientMock.Object);
-                })).CreateClient();
+            var client = CreateHttpClient(
+                appFactory,
+                consulHttpClient: CreateConsulHttpClientMock().Object);
 
             var request = new HttpRequestMessage(HttpMethod.Delete, $"http://localhost/{domainName}");
 
@@ -199,16 +203,15 @@ namespace DopplerCustomDomain.Test
             // Arrange
             var fixture = new Fixture();
             var domainName = fixture.Create<string>();
-            var consulHttpClientMock = new Mock<IConsulHttpClient>();
+
+            var consulHttpClientMock = CreateConsulHttpClientMock();
             consulHttpClientMock.Setup(c => c.DeleteRecurseAsync(It.IsAny<string>())).Throws<HttpRequestException>();
 
             using var appFactory = _factory.WithBypassAuthorization();
 
-            var client = appFactory
-                .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
-                {
-                    services.AddSingleton(consulHttpClientMock.Object);
-                })).CreateClient();
+            var client = CreateHttpClient(
+                appFactory,
+                consulHttpClient: consulHttpClientMock.Object);
 
             var request = new HttpRequestMessage(HttpMethod.Delete, $"http://localhost/{domainName}");
 
@@ -228,16 +231,13 @@ namespace DopplerCustomDomain.Test
             var httpsBaseUrl = $"/v1/kv/traefik/http/routers/https_{domainName}";
             var httpBaseUrl = $"/v1/kv/traefik/http/routers/http_{domainName}";
 
-            var consulHttpClientMock = new Mock<IConsulHttpClient>();
-            consulHttpClientMock.SetReturnsDefault(Task.CompletedTask);
+            var consulHttpClientMock = CreateConsulHttpClientMock();
 
             using var appFactory = _factory.WithBypassAuthorization();
 
-            var client = appFactory
-                .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
-                {
-                    services.AddSingleton(consulHttpClientMock.Object);
-                })).CreateClient();
+            var client = CreateHttpClient(
+                appFactory,
+                consulHttpClient: consulHttpClientMock.Object);
 
             var request = new HttpRequestMessage(HttpMethod.Delete, $"http://localhost/{domainName}");
 
@@ -275,17 +275,14 @@ namespace DopplerCustomDomain.Test
                 ruleType = "HttpsOnly"
             };
 
-            var consulHttpClientMock = new Mock<IConsulHttpClient>();
+            var consulHttpClientMock = CreateConsulHttpClientMock();
             consulHttpClientMock.Setup(c => c.PutStringAsync(It.IsAny<string>(), It.IsAny<string>())).Throws<HttpRequestException>();
 
             using var appFactory = _factory.WithBypassAuthorization();
 
-            var client = appFactory
-                .WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
-                {
-                    services.AddSingleton(consulHttpClientMock.Object);
-                })).CreateClient();
-
+            var client = CreateHttpClient(
+                appFactory,
+                consulHttpClient: consulHttpClientMock.Object);
 
             var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}");
             request.Content = new StringContent(JsonSerializer.Serialize(domainConfiguration), Encoding.UTF8, "application/json");
@@ -319,16 +316,11 @@ namespace DopplerCustomDomain.Test
                 ruleType = "HttpsOnly"
             };
 
-            var consulHttpClientMock = new Mock<IConsulHttpClient>();
-            consulHttpClientMock.Setup(x => x.PutStringAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
-
             using var appFactory = _factory.WithDisabledLifeTimeValidation();
 
-            var client = appFactory.WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
-            {
-                services.AddSingleton(consulHttpClientMock.Object);
-            })).CreateClient();
+            var client = CreateHttpClient(
+                appFactory,
+                consulHttpClient: CreateConsulHttpClientMock().Object);
 
             var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}");
             request.Content = new StringContent(JsonSerializer.Serialize(domainConfiguration), Encoding.UTF8, "application/json");
