@@ -1,4 +1,5 @@
 using DopplerCustomDomain.CustomDomainProvider;
+using DopplerCustomDomain.DnsValidation;
 using DopplerCustomDomain.DopplerSecurity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,15 +17,18 @@ namespace DopplerCustomDomain.Controllers
         private readonly ILogger<CustomDomainController> _logger;
         private readonly ICustomDomainProviderService _customDomainProviderService;
         private readonly IServiceNameResolver _serviceNameResolver;
+        private readonly IDnsResolutionValidator _dnsResolutionValidator;
 
         public CustomDomainController(
             ILogger<CustomDomainController> logger,
             ICustomDomainProviderService customDomainProviderService,
-            IServiceNameResolver serviceNameResolver)
+            IServiceNameResolver serviceNameResolver,
+            IDnsResolutionValidator dnsResolutionValidator)
         {
             _logger = logger;
             _customDomainProviderService = customDomainProviderService;
             _serviceNameResolver = serviceNameResolver;
+            _dnsResolutionValidator = dnsResolutionValidator;
         }
 
         [HttpGet("/")]
@@ -34,6 +38,15 @@ namespace DopplerCustomDomain.Controllers
             return "Custom Domain Service";
         }
 
+        [HttpGet("/{domainName}/_ip-resolution")]
+        public async Task<IActionResult> ValidateCustomDomainIPResolution([FromRoute] string domainName)
+        {
+            if (!(await _dnsResolutionValidator.IsNamePointingToOurServiceAsync(domainName)))
+            {
+                return new BadRequestObjectResult($"{domainName} does not resolve to our service IP address");
+            }
+            return new OkObjectResult($"{domainName} resolves to our service IP address");
+        }
 
         [HttpPut("/{domainName}")]
         public async Task<IActionResult> CreateCustomDomain([FromRoute] string domainName, [FromBody] DomainConfiguration domainConfiguration)
