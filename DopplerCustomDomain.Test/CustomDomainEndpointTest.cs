@@ -1,6 +1,7 @@
 using AutoFixture;
 using DopplerCustomDomain.Consul;
 using DopplerCustomDomain.CustomDomainProvider;
+using DopplerCustomDomain.DnsValidation;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,14 +36,26 @@ namespace DopplerCustomDomain.Test
             return consulHttpClientMock;
         }
 
+        private Mock<IDnsResolutionValidator> CreateDnsResolutionValidatorMock()
+        {
+            var dnsResolutionValidatorMock = new Mock<IDnsResolutionValidator>();
+            dnsResolutionValidatorMock.SetReturnsDefault(Task.FromResult(true));
+            return dnsResolutionValidatorMock;
+        }
+
         private HttpClient CreateHttpClient(
             WebApplicationFactory<Startup> appFactory,
-            IConsulHttpClient? consulHttpClient = null)
+            IConsulHttpClient? consulHttpClient = null,
+            IDnsResolutionValidator? dnsResolutionValidator = null)
         => appFactory.WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
         {
             if (consulHttpClient != null)
             {
                 services.AddSingleton(consulHttpClient);
+            }
+            if (dnsResolutionValidator != null)
+            {
+                services.AddSingleton(dnsResolutionValidator);
             }
         })).CreateClient();
 
@@ -330,6 +343,55 @@ namespace DopplerCustomDomain.Test
 
             Assert.NotNull(response);
             Assert.Equal(httpStatusCode, response.StatusCode);
+        }
+
+
+        [Fact]
+        public async Task GET_domain_ip_resolution_should_return_Ok_when_it_resolves_to_our_IP()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var domainName = fixture.Create<string>();
+
+            var dnsResolutionValidatorMock = CreateDnsResolutionValidatorMock();
+            dnsResolutionValidatorMock.Setup(x => x.IsNamePointingToOurServiceAsync(domainName)).ReturnsAsync(true);
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                dnsResolutionValidator: dnsResolutionValidatorMock.Object);
+
+            // Act
+            var response = await client.GetAsync($"http://localhost/{domainName}/_ip-resolution");
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_domain_ip_resolution_should_return_BadRequest_when_it_resolves_to_our_IP()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var domainName = fixture.Create<string>();
+
+            var dnsResolutionValidatorMock = CreateDnsResolutionValidatorMock();
+            dnsResolutionValidatorMock.Setup(x => x.IsNamePointingToOurServiceAsync(domainName)).ReturnsAsync(false);
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                dnsResolutionValidator: dnsResolutionValidatorMock.Object);
+
+            // Act
+            var response = await client.GetAsync($"http://localhost/{domainName}/_ip-resolution");
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
     }
 }
