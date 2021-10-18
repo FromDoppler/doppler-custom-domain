@@ -4,22 +4,21 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DopplerCustomDomain.DnsValidation
 {
     public class SystemDnsResolutionValidator : IDnsResolutionValidator
     {
-        // TODO: read this from configuration based on the environment
-        private static readonly HashSet<IPAddress> _expectedIPs = new HashSet<IPAddress>()
-        {
-            IPAddress.Parse("184.106.28.222"),
-        };
-
+        private readonly HashSet<IPAddress> _expectedIPs;
         private readonly ILogger<SystemDnsResolutionValidator> _logger;
 
-        public SystemDnsResolutionValidator(ILogger<SystemDnsResolutionValidator> logger)
+        public SystemDnsResolutionValidator(
+            ILogger<SystemDnsResolutionValidator> logger,
+            IOptions<DnsValidationConfiguration> configuration)
         {
             _logger = logger;
+            _expectedIPs = new HashSet<IPAddress>(configuration.Value.OurServersIPs.Select(x => IPAddress.Parse(x)));
         }
 
         public async Task<bool> IsNamePointingToOurServiceAsync(string domainName)

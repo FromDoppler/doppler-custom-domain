@@ -30,7 +30,7 @@ namespace DopplerCustomDomain
             services.AddHttpClient<IConsulHttpClient, ConsulHttpClient>();
             services.AddDopplerSecurity();
             services.AddSingleton<IAuthorizationHandler, IsSuperUserHandler>();
-            services.AddDnsValidation();
+            services.AddDnsValidation(Configuration.GetSection("DnsValidation"));
             services.AddControllers()
                 .AddJsonOptions(options =>
                 {
