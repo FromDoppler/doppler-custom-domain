@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DopplerCustomDomain.Controllers
+namespace DopplerCustomDomain.Api
 {
     [Authorize]
     [ApiController]
@@ -49,7 +49,9 @@ namespace DopplerCustomDomain.Controllers
         }
 
         [HttpPut("/{domainName}")]
-        public async Task<IActionResult> CreateCustomDomain([FromRoute] string domainName, [FromBody] DomainConfiguration domainConfiguration)
+        public async Task<IActionResult> CreateCustomDomain(
+            [FromRoute] string domainName,
+            [FromBody] DomainConfiguration domainConfiguration)
         {
             var serviceName = _serviceNameResolver.Resolve(domainConfiguration.service);
 
