@@ -362,7 +362,7 @@ namespace DopplerCustomDomain.Test
         }
 
         [Fact]
-        public async Task GET_domain_ip_resolution_should_return_BadRequest_when_it_resolves_to_our_IP()
+        public async Task GET_domain_ip_resolution_should_return_BadRequest_when_it_does_not_resolve_to_our_IP()
         {
             // Arrange
             var fixture = new Fixture();
