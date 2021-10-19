@@ -21,17 +21,17 @@ namespace DopplerCustomDomain.DnsValidation
             _expectedIPs = new HashSet<IPAddress>(configuration.Value.OurServersIPs.Select(x => IPAddress.Parse(x)));
         }
 
-        public async Task<bool> IsNamePointingToOurServiceAsync(string domainName)
+        public async Task<DnsValidationResult> ValidateAsync(string domainName)
         {
             try
             {
                 var result = await Dns.GetHostAddressesAsync(domainName);
-                return result.All(_expectedIPs.Contains);
+                return new DnsValidationResult(domainName, result.All(_expectedIPs.Contains));
             }
             catch (Exception e)
             {
                 _logger.LogWarning(e, "Error resolving IP address for {domainName}, assuming that it is not pointing to our service", domainName);
-                return false;
+                return new DnsValidationResult(domainName, false);
             }
         }
     }

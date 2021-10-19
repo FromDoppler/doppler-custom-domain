@@ -45,10 +45,10 @@ namespace DopplerCustomDomain.DnsValidation
             var sut = CreateSut();
 
             // Act
-            var result = await sut.IsNamePointingToOurServiceAsync(domainName);
+            var result = await sut.ValidateAsync(domainName);
 
             // Assert
-            Assert.True(result);
+            Assert.True(result.IsPointingToOurService);
         }
 
         [Theory]
@@ -62,10 +62,10 @@ namespace DopplerCustomDomain.DnsValidation
             var sut = CreateSut();
 
             // Act
-            var result = await sut.IsNamePointingToOurServiceAsync(domainName);
+            var result = await sut.ValidateAsync(domainName);
 
             // Assert
-            Assert.False(result);
+            Assert.False(result.IsPointingToOurService);
         }
     }
 }

@@ -346,7 +346,7 @@ namespace DopplerCustomDomain.Test
             var domainName = fixture.Create<string>();
 
             var dnsResolutionValidatorMock = CreateDnsResolutionValidatorMock();
-            dnsResolutionValidatorMock.Setup(x => x.IsNamePointingToOurServiceAsync(domainName)).ReturnsAsync(true);
+            dnsResolutionValidatorMock.Setup(x => x.ValidateAsync(domainName)).ReturnsAsync(new DnsValidationResult(domainName, true));
 
             using var appFactory = _factory.WithBypassAuthorization();
 
@@ -369,7 +369,7 @@ namespace DopplerCustomDomain.Test
             var domainName = fixture.Create<string>();
 
             var dnsResolutionValidatorMock = CreateDnsResolutionValidatorMock();
-            dnsResolutionValidatorMock.Setup(x => x.IsNamePointingToOurServiceAsync(domainName)).ReturnsAsync(false);
+            dnsResolutionValidatorMock.Setup(x => x.ValidateAsync(domainName)).ReturnsAsync(new DnsValidationResult(domainName, false));
 
             using var appFactory = _factory.WithBypassAuthorization();
 

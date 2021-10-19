@@ -41,7 +41,8 @@ namespace DopplerCustomDomain.Api
         [HttpGet("/{domainName}/_ip-resolution")]
         public async Task<IActionResult> ValidateCustomDomainIPResolution([FromRoute] string domainName)
         {
-            if (!(await _dnsResolutionValidator.IsNamePointingToOurServiceAsync(domainName)))
+            var dnsValidationResult = await _dnsResolutionValidator.ValidateAsync(domainName);
+            if (!dnsValidationResult.IsPointingToOurService)
             {
                 return new BadRequestObjectResult($"{domainName} does not resolve to our service IP address");
             }
