@@ -31,7 +31,7 @@ namespace DopplerCustomDomain.DnsValidation
             catch (Exception e)
             {
                 _logger.LogWarning(e, "Error resolving IP address for {domainName}, assuming that it is not pointing to our service", domainName);
-                return new DnsValidationResult(domainName, false);
+                return new DnsValidationResultWithException(domainName, e);
             }
         }
     }
