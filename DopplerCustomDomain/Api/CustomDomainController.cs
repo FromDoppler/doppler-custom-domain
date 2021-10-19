@@ -61,6 +61,12 @@ namespace DopplerCustomDomain.Api
                 return new NotFoundObjectResult($"Cannot find the service called: {domainConfiguration.service}");
             }
 
+            var dnsValidationResult = await _dnsResolutionValidator.ValidateAsync(domainName);
+            if (!dnsValidationResult.IsPointingToOurService)
+            {
+                _logger.LogWarning("WARNING: {domainName} does not resolve to our service IP address. Result: {result}", domainName, dnsValidationResult);
+            }
+
             await _customDomainProviderService.CreateCustomDomain(domainName, serviceName, domainConfiguration.ruleType);
             return new OkObjectResult("Custom Domain Created");
         }

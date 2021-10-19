@@ -1,14 +1,17 @@
 using AutoFixture;
+using DopplerCustomDomain.Api;
 using DopplerCustomDomain.Consul;
 using DopplerCustomDomain.CustomDomainProvider;
 using DopplerCustomDomain.DnsValidation;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -36,6 +39,13 @@ namespace DopplerCustomDomain.Test
             return consulHttpClientMock;
         }
 
+        private Mock<ICustomDomainProviderService> CreateCustomDomainProviderServiceMock()
+        {
+            var customDomainProviderServiceMock = new Mock<ICustomDomainProviderService>();
+            customDomainProviderServiceMock.SetReturnsDefault(Task.CompletedTask);
+            return customDomainProviderServiceMock;
+        }
+
         private Mock<IDnsResolutionValidator> CreateDnsResolutionValidatorMock()
         {
             var dnsResolutionValidatorMock = new Mock<IDnsResolutionValidator>();
@@ -46,16 +56,26 @@ namespace DopplerCustomDomain.Test
         private HttpClient CreateHttpClient(
             WebApplicationFactory<Startup> appFactory,
             IConsulHttpClient? consulHttpClient = null,
-            IDnsResolutionValidator? dnsResolutionValidator = null)
+            ICustomDomainProviderService? customDomainProviderService = null,
+            IDnsResolutionValidator? dnsResolutionValidator = null,
+            ILogger<CustomDomainController>? customDomainControllerLogger = null)
         => appFactory.WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
         {
             if (consulHttpClient != null)
             {
                 services.AddSingleton(consulHttpClient);
             }
+            if (customDomainProviderService != null)
+            {
+                services.AddSingleton(customDomainProviderService);
+            }
             if (dnsResolutionValidator != null)
             {
                 services.AddSingleton(dnsResolutionValidator);
+            }
+            if (customDomainControllerLogger != null)
+            {
+                services.AddSingleton(customDomainControllerLogger);
             }
         })).CreateClient();
 
@@ -382,6 +402,82 @@ namespace DopplerCustomDomain.Test
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PUT_domain_should_log_warning_and_store_domain_when_it_does_not_resolve_to_our_IP()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var domainName = fixture.Create<string>();
+            var expectedRuleType = RuleType.HttpsOnly;
+            var ruleType = expectedRuleType.ToString();
+            var expectedService = "relay-actions-api_service_prod@docker";
+            var service = "relay-tracking";
+
+            var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
+            var dnsResolutionValidatorMock = CreateDnsResolutionValidatorMock();
+            dnsResolutionValidatorMock.Setup(x => x.ValidateAsync(domainName)).ReturnsAsync(new DnsValidationResult(domainName, false));
+
+            var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                customDomainProviderService: customDomainProviderServiceMock.Object,
+                dnsResolutionValidator: dnsResolutionValidatorMock.Object,
+                customDomainControllerLogger: customDomainControllerLoggerMock.Object);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}");
+            request.Content = JsonContent.Create(new { service, ruleType });
+
+            // Act
+            var response = await client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(domainName, expectedService, expectedRuleType), Times.Once);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Once);
+            customDomainControllerLoggerMock.VerifyLog(LogLevel.Warning, $"WARNING: {domainName} does not resolve to our service IP address. Result: DnsValidationResult {{ DomainName = {domainName}, IsPointingToOurService = False }}", Times.Once);
+        }
+
+        [Fact]
+        public async Task PUT_domain_should_not_log_warning_and_store_domain_when_it_resolves_to_our_IP()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var domainName = fixture.Create<string>();
+            var expectedRuleType = RuleType.HttpsOnly;
+            var ruleType = expectedRuleType.ToString();
+            var expectedService = "relay-actions-api_service_prod@docker";
+            var service = "relay-tracking";
+
+            var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
+            var dnsResolutionValidatorMock = CreateDnsResolutionValidatorMock();
+            dnsResolutionValidatorMock.Setup(x => x.ValidateAsync(domainName)).ReturnsAsync(new DnsValidationResult(domainName, true));
+
+            var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                customDomainProviderService: customDomainProviderServiceMock.Object,
+                dnsResolutionValidator: dnsResolutionValidatorMock.Object,
+                customDomainControllerLogger: customDomainControllerLoggerMock.Object);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}");
+            request.Content = JsonContent.Create(new { service, ruleType });
+
+            // Act
+            var response = await client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(domainName, expectedService, expectedRuleType), Times.Once);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Once);
+            customDomainControllerLoggerMock.VerifyLog(LogLevel.Warning, "does not resolve to our service IP address", Times.Never);
         }
     }
 }
