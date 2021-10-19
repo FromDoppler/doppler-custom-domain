@@ -21,6 +21,24 @@ When you run the queries you can select the environment using VS Code UI:
 
 ![rest-client-environment-selection](DopplerCustomDomain.Test/docs/rest-client-environment-selection0.png)
 
+## Domain Validation
+
+In order to avoid registering domains that will fail to negotiate certificates with _Let's Encrypt_, we are validating
+that the domain resolves to our IP addresses.
+
+For that reason, we need robust DNS servers configured in our hosts.
+
+Based on the configuration done in our MTA servers we modified the file `/etc/resolve.conf` in our Swarm's nodes with this content:
+
+```ini
+search cloudspace.com
+nameserver 1.1.1.1
+nameserver 1.0.0.1
+nameserver 173.203.4.8
+nameserver 173.203.4.9
+domain cloudspace.com
+```
+
 ## Scripts
 
 ### `get-consul-https-domains.sh`
