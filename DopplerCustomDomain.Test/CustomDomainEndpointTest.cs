@@ -83,7 +83,6 @@ namespace DopplerCustomDomain.Test
 
             var response = await client.SendAsync(request);
 
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
@@ -114,7 +113,6 @@ namespace DopplerCustomDomain.Test
 
             var response = await client.SendAsync(request);
 
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
@@ -149,7 +147,6 @@ namespace DopplerCustomDomain.Test
             var response = await client.SendAsync(request);
 
             // Assert
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             consulHttpClientMock.Verify(
@@ -206,7 +203,6 @@ namespace DopplerCustomDomain.Test
             var response = await client.SendAsync(request);
 
             // Assert
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
@@ -231,7 +227,6 @@ namespace DopplerCustomDomain.Test
             // Act
             var response = await client.SendAsync(request);
 
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
@@ -258,7 +253,6 @@ namespace DopplerCustomDomain.Test
             var response = await client.SendAsync(request);
 
             // Assert
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             consulHttpClientMock.Verify(
@@ -304,7 +298,6 @@ namespace DopplerCustomDomain.Test
             var response = await client.SendAsync(request);
 
             // Assert
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
@@ -341,7 +334,6 @@ namespace DopplerCustomDomain.Test
 
             var response = await client.SendAsync(request);
 
-            Assert.NotNull(response);
             Assert.Equal(httpStatusCode, response.StatusCode);
         }
 
@@ -366,7 +358,6 @@ namespace DopplerCustomDomain.Test
             var response = await client.GetAsync($"http://localhost/{domainName}/_ip-resolution");
 
             // Assert
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
@@ -390,7 +381,6 @@ namespace DopplerCustomDomain.Test
             var response = await client.GetAsync($"http://localhost/{domainName}/_ip-resolution");
 
             // Assert
-            Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
     }
