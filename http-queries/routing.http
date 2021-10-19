@@ -32,6 +32,10 @@ Content-Type: application/json
 }
 
 ###
+GET https://{{apisDomain}}/routing/{{customDomain}}/_ip-resolution
+Authorization: Bearer {{dopplerToken}}
+
+###
 DELETE https://{{apisDomain}}/routing/{{customDomain}}
 Authorization: Bearer {{dopplerToken}}
 
