@@ -4,6 +4,6 @@ namespace DopplerCustomDomain.DnsValidation
 {
     public interface IDnsResolutionValidator
     {
-        Task<bool> IsNamePointingToOurServiceAsync(string domainName);
+        Task<DnsValidationResult> ValidateAsync(string domainName);
     }
 }
