@@ -26,7 +26,8 @@ namespace DopplerCustomDomain.DnsValidation
             try
             {
                 var result = await Dns.GetHostAddressesAsync(domainName);
-                return new DnsValidationResult(domainName, result.All(_expectedIPs.Contains), DnsValidationVerdict.Allow);
+                return result.All(_expectedIPs.Contains) ? new PointingToUsDnsValidationResult(domainName)
+                    : new NotPointingToUsDnsValidationResult(domainName, DnsValidationVerdict.Allow);
             }
             catch (Exception e)
             {

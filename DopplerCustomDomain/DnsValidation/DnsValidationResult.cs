@@ -8,6 +8,15 @@ namespace DopplerCustomDomain.DnsValidation
         DnsValidationVerdict Verdict
     );
 
+    public record PointingToUsDnsValidationResult(
+        string DomainName
+    ) : DnsValidationResult(DomainName, true, DnsValidationVerdict.Allow);
+
+    public record NotPointingToUsDnsValidationResult(
+        string DomainName,
+        DnsValidationVerdict Verdict
+    ) : DnsValidationResult(DomainName, false, Verdict);
+
     public record DnsValidationResultWithException(
         string DomainName,
         Exception Exception,
