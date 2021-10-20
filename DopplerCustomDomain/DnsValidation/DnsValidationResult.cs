@@ -4,11 +4,13 @@ namespace DopplerCustomDomain.DnsValidation
 {
     public record DnsValidationResult(
         string DomainName,
-        bool IsPointingToOurService
+        bool IsPointingToOurService,
+        DnsValidationVerdict Verdict
     );
 
     public record DnsValidationResultWithException(
         string DomainName,
-        Exception Exception
-    ) : DnsValidationResult(DomainName, false);
+        Exception Exception,
+        DnsValidationVerdict Verdict
+    ) : DnsValidationResult(DomainName, false, Verdict);
 }
