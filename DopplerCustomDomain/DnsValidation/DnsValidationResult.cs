@@ -2,7 +2,7 @@ using System;
 
 namespace DopplerCustomDomain.DnsValidation
 {
-    public record DnsValidationResult(
+    public abstract record DnsValidationResult(
         string DomainName,
         bool IsPointingToOurService,
         DnsValidationVerdict Verdict
