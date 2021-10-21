@@ -26,12 +26,13 @@ namespace DopplerCustomDomain.DnsValidation
             try
             {
                 var result = await Dns.GetHostAddressesAsync(domainName);
-                return new DnsValidationResult(domainName, result.All(_expectedIPs.Contains));
+                return result.All(_expectedIPs.Contains) ? new PointingToUsDnsValidationResult(domainName)
+                    : new NotPointingToUsDnsValidationResult(domainName, DnsValidationVerdict.Allow);
             }
             catch (Exception e)
             {
                 _logger.LogWarning(e, "Error resolving IP address for {domainName}, assuming that it is not pointing to our service", domainName);
-                return new DnsValidationResult(domainName, false);
+                return new DnsValidationResultWithException(domainName, e, DnsValidationVerdict.Allow);
             }
         }
     }

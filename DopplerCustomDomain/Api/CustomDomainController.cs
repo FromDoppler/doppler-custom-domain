@@ -62,12 +62,22 @@ namespace DopplerCustomDomain.Api
             }
 
             var dnsValidationResult = await _dnsResolutionValidator.ValidateAsync(domainName);
-            if (!dnsValidationResult.IsPointingToOurService)
+
+            // Breaking Liskov substitution principle
+            switch (dnsValidationResult.Verdict)
             {
-                _logger.LogWarning("WARNING: {domainName} does not resolve to our service IP address. Result: {result}", domainName, dnsValidationResult);
+                case DnsValidationVerdict.Allow:
+                    if (!dnsValidationResult.IsPointingToOurService)
+                    {
+                        _logger.LogWarning("WARNING: {domainName} does not resolve to our service IP address. Result: {result}", domainName, dnsValidationResult);
+                    }
+                    await _customDomainProviderService.CreateCustomDomain(domainName, serviceName, domainConfiguration.ruleType);
+                    break;
+                default:
+                    _logger.LogError("Error: DNS validation result {dnsValidationResult} has an unknown verdict: {verdict}", dnsValidationResult, dnsValidationResult.Verdict);
+                    throw new NotImplementedException($"DnsValidationVerdict {dnsValidationResult.Verdict} not supported");
             }
 
-            await _customDomainProviderService.CreateCustomDomain(domainName, serviceName, domainConfiguration.ruleType);
             return new OkObjectResult("Custom Domain Created");
         }
 
