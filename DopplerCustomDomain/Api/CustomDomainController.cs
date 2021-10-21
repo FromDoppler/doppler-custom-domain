@@ -73,6 +73,12 @@ namespace DopplerCustomDomain.Api
                     }
                     await _customDomainProviderService.CreateCustomDomain(domainName, serviceName, domainConfiguration.ruleType);
                     break;
+                case DnsValidationVerdict.Ignore:
+                    if (!dnsValidationResult.IsPointingToOurService)
+                    {
+                        _logger.LogWarning("WARNING: {domainName} does not resolve to our service IP address, it will not be registered. Result: {result}", domainName, dnsValidationResult);
+                    }
+                    break;
                 default:
                     _logger.LogError("Error: DNS validation result {dnsValidationResult} has an unknown verdict: {verdict}", dnsValidationResult, dnsValidationResult.Verdict);
                     throw new NotImplementedException($"DnsValidationVerdict {dnsValidationResult.Verdict} not supported");

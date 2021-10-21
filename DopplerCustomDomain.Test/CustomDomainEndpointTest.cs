@@ -413,7 +413,7 @@ namespace DopplerCustomDomain.Test
         }
 
         [Fact]
-        public async Task PUT_domain_should_log_warning_and_store_domain_when_it_does_not_resolve_to_our_IP()
+        public async Task PUT_domain_should_log_warning_and_store_domain_when_verdict_is_allow_and_it_does_not_resolve_to_our_IP()
         {
             // Arrange
             var fixture = new Fixture();
@@ -449,6 +449,43 @@ namespace DopplerCustomDomain.Test
             customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(domainName, expectedService, expectedRuleType), Times.Once);
             customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Once);
             customDomainControllerLoggerMock.VerifyLog(LogLevel.Warning, $"WARNING: {domainName} does not resolve to our service IP address. Result: NotPointingToUsDnsValidationResult {{ DomainName = {domainName}, IsPointingToOurService = False, Verdict = Allow }}", Times.Once);
+        }
+
+        [Fact]
+        public async Task PUT_domain_should_log_warning_and_not_store_domain_when_verdict_is_ignore_and_it_does_not_resolve_to_our_IP()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var domainName = fixture.Create<string>();
+            var expectedRuleType = RuleType.HttpsOnly;
+            var ruleType = expectedRuleType.ToString();
+            var service = "relay-tracking";
+
+            var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
+            var dnsResolutionValidatorMock = CreateDnsResolutionValidatorMock();
+            dnsResolutionValidatorMock.Setup(x => x.ValidateAsync(domainName)).
+                ReturnsAsync(new NotPointingToUsDnsValidationResult(domainName, DnsValidationVerdict.Ignore));
+
+            var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                customDomainProviderService: customDomainProviderServiceMock.Object,
+                dnsResolutionValidator: dnsResolutionValidatorMock.Object,
+                customDomainControllerLogger: customDomainControllerLoggerMock.Object);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}");
+            request.Content = JsonContent.Create(new { service, ruleType });
+
+            // Act
+            var response = await client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Never);
+            customDomainControllerLoggerMock.VerifyLog(LogLevel.Warning, $"WARNING: {domainName} does not resolve to our service IP address, it will not be registered. Result: NotPointingToUsDnsValidationResult {{ DomainName = {domainName}, IsPointingToOurService = False, Verdict = Ignore }}", Times.Once);
         }
 
         [Fact]
