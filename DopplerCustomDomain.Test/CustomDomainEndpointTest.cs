@@ -448,7 +448,7 @@ namespace DopplerCustomDomain.Test
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(domainName, expectedService, expectedRuleType), Times.Once);
             customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Once);
-            customDomainControllerLoggerMock.VerifyLog(LogLevel.Warning, $"WARNING: {domainName} does not resolve to our service IP address. Result: NotPointingToUsDnsValidationResult {{ DomainName = {domainName}, IsPointingToOurService = False, Verdict = Allow }}", Times.Once);
+            customDomainControllerLoggerMock.VerifyLog(LogLevel.Warning, $"WARNING: {domainName} does not resolve to our service IP address, but it will be registered. Result: NotPointingToUsDnsValidationResult {{ DomainName = {domainName}, IsPointingToOurService = False, Verdict = Allow }}", Times.Once);
         }
 
         [Fact]
