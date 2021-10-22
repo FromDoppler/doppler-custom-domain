@@ -69,9 +69,15 @@ namespace DopplerCustomDomain.Api
                 case DnsValidationVerdict.Allow:
                     if (!dnsValidationResult.IsPointingToOurService)
                     {
-                        _logger.LogWarning("WARNING: {domainName} does not resolve to our service IP address. Result: {result}", domainName, dnsValidationResult);
+                        _logger.LogWarning("WARNING: {domainName} does not resolve to our service IP address, but it will be registered. Result: {result}", domainName, dnsValidationResult);
                     }
                     await _customDomainProviderService.CreateCustomDomain(domainName, serviceName, domainConfiguration.ruleType);
+                    break;
+                case DnsValidationVerdict.Ignore:
+                    if (!dnsValidationResult.IsPointingToOurService)
+                    {
+                        _logger.LogWarning("WARNING: {domainName} does not resolve to our service IP address, it will not be registered. Result: {result}", domainName, dnsValidationResult);
+                    }
                     break;
                 default:
                     _logger.LogError("Error: DNS validation result {dnsValidationResult} has an unknown verdict: {verdict}", dnsValidationResult, dnsValidationResult.Verdict);
