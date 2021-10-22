@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -520,6 +523,44 @@ namespace DopplerCustomDomain.Test
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
             customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Never);
             customDomainControllerLoggerMock.VerifyLog(LogLevel.Error, $"Error: DNS validation result NotPointingToUsDnsValidationResult {{ DomainName = {domainName}, IsPointingToOurService = False, Verdict = {(int)unknownVerdict} }} has an unknown verdict: {(int)unknownVerdict}", Times.Once);
+        }
+
+        public static IEnumerable<object[]> DnsValidationVerdictValues()
+            => Enum.GetValues<DnsValidationVerdict>().Select(x => new object[] { x });
+
+        [Theory]
+        [MemberData(nameof(DnsValidationVerdictValues))]
+        public async Task PUT_domain_should_not_return_InternalServerError_for_valid_verdicts(DnsValidationVerdict verdict)
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var domainName = fixture.Create<string>();
+            var ruleType = "HttpsOnly";
+            var service = "relay-tracking";
+
+            var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
+            var dnsResolutionValidatorMock = CreateDnsResolutionValidatorMock();
+            dnsResolutionValidatorMock.Setup(x => x.ValidateAsync(domainName)).
+                ReturnsAsync(new NotPointingToUsDnsValidationResult(domainName, verdict));
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
+
+            var client = CreateHttpClient(
+                appFactory,
+                customDomainProviderService: customDomainProviderServiceMock.Object,
+                dnsResolutionValidator: dnsResolutionValidatorMock.Object,
+                customDomainControllerLogger: customDomainControllerLoggerMock.Object);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{domainName}");
+            request.Content = JsonContent.Create(new { service, ruleType });
+
+            // Act
+            var response = await client.SendAsync(request);
+
+            // Assert
+            Assert.NotEqual(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
     }
