@@ -5,6 +5,7 @@ using DopplerCustomDomain.CustomDomainProvider;
 using DopplerCustomDomain.DnsValidation;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -61,26 +62,36 @@ namespace DopplerCustomDomain.Test
             IConsulHttpClient? consulHttpClient = null,
             ICustomDomainProviderService? customDomainProviderService = null,
             IDnsResolutionValidator? dnsResolutionValidator = null,
-            ILogger<CustomDomainController>? customDomainControllerLogger = null)
-        => appFactory.WithWebHostBuilder((e) => e.ConfigureTestServices(services =>
-        {
-            if (consulHttpClient != null)
+            ILogger<CustomDomainController>? customDomainControllerLogger = null,
+            Dictionary<string, string>? settingsOverridings = null)
+        => appFactory.WithWebHostBuilder((e) => e
+            .ConfigureAppConfiguration((context, configBuilder) =>
             {
-                services.AddSingleton(consulHttpClient);
-            }
-            if (customDomainProviderService != null)
+                if (settingsOverridings != null)
+                {
+                    configBuilder.AddInMemoryCollection(settingsOverridings);
+                }
+            })
+            .ConfigureTestServices(services =>
             {
-                services.AddSingleton(customDomainProviderService);
-            }
-            if (dnsResolutionValidator != null)
-            {
-                services.AddSingleton(dnsResolutionValidator);
-            }
-            if (customDomainControllerLogger != null)
-            {
-                services.AddSingleton(customDomainControllerLogger);
-            }
-        })).CreateClient();
+                if (consulHttpClient != null)
+                {
+                    services.AddSingleton(consulHttpClient);
+                }
+                if (customDomainProviderService != null)
+                {
+                    services.AddSingleton(customDomainProviderService);
+                }
+                if (dnsResolutionValidator != null)
+                {
+                    services.AddSingleton(dnsResolutionValidator);
+                }
+                if (customDomainControllerLogger != null)
+                {
+                    services.AddSingleton(customDomainControllerLogger);
+                }
+            }))
+            .CreateClient();
 
         [Fact]
         public async Task Create_custom_domain_should_response_OK_when_ConsultHttpClient_do_not_fail()
@@ -600,5 +611,164 @@ namespace DopplerCustomDomain.Test
             Assert.NotEqual(HttpStatusCode.InternalServerError, response.StatusCode);
         }
 
+        # region Ugly tests that real calls DNS server
+
+        // TODO: refactor CustomDomainValidator to allow mock the DNS client
+
+        [Fact]
+        public async Task PUT_domain_should_log_warning_and_store_domain_when_it_does_not_resolve_to_our_IP_and_NotResolvingVerdict_setting_is_Allow()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var notResolvingDomainName = "www.google.com";
+            var expectedRuleType = RuleType.HttpsOnly;
+            var ruleType = expectedRuleType.ToString();
+            var expectedService = "relay-actions-api_service_prod@docker";
+            var service = "relay-tracking";
+
+            var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
+            var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
+            var settingsOverridings = new Dictionary<string, string>()
+            {
+                ["DnsValidation:NotResolvingVerdict"] = "Allow"
+            };
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                customDomainProviderService: customDomainProviderServiceMock.Object,
+                customDomainControllerLogger: customDomainControllerLoggerMock.Object,
+                settingsOverridings: settingsOverridings);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{notResolvingDomainName}");
+            request.Content = JsonContent.Create(new { service, ruleType });
+
+            // Act
+            var response = await client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(notResolvingDomainName, expectedService, expectedRuleType), Times.Once);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Once);
+            customDomainControllerLoggerMock.VerifyLog(LogLevel.Warning, $"WARNING: {notResolvingDomainName} does not resolve to our service IP address, but it will be registered. Result: NotPointingToUsDnsValidationResult {{ DomainName = {notResolvingDomainName}, IsPointingToOurService = False, Verdict = Allow }}", Times.Once);
+        }
+
+        [Fact]
+        public async Task PUT_domain_should_log_warning_and_not_store_domain_when_it_does_not_resolve_to_our_IP_and_NotResolvingVerdict_setting_is_Ignore()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var notResolvingDomainName = "www.google.com";
+            var expectedRuleType = RuleType.HttpsOnly;
+            var ruleType = expectedRuleType.ToString();
+            var service = "relay-tracking";
+
+            var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
+            var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
+            var settingsOverridings = new Dictionary<string, string>()
+            {
+                ["DnsValidation:NotResolvingVerdict"] = "Ignore"
+            };
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                customDomainProviderService: customDomainProviderServiceMock.Object,
+                customDomainControllerLogger: customDomainControllerLoggerMock.Object,
+                settingsOverridings: settingsOverridings);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{notResolvingDomainName}");
+            request.Content = JsonContent.Create(new { service, ruleType });
+
+            // Act
+            var response = await client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Never);
+            customDomainControllerLoggerMock.VerifyLog(LogLevel.Warning, $"WARNING: {notResolvingDomainName} does not resolve to our service IP address, it will not be registered. Result: NotPointingToUsDnsValidationResult {{ DomainName = {notResolvingDomainName}, IsPointingToOurService = False, Verdict = Ignore }}", Times.Once);
+        }
+
+        [Fact]
+        public async Task PUT_domain_should_return_error_and_not_store_domain_when_it_does_not_resolve_to_our_IP_and_NotResolvingVerdict_setting_in_invalid()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var notResolvingDomainName = "www.google.com";
+            var ruleType = "HttpsOnly";
+            var service = "relay-tracking";
+            var wrongVerdictSetting = fixture.Create<string>();
+
+            var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
+            var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
+            var settingsOverridings = new Dictionary<string, string>()
+            {
+                ["DnsValidation:NotResolvingVerdict"] = wrongVerdictSetting
+            };
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                customDomainProviderService: customDomainProviderServiceMock.Object,
+                customDomainControllerLogger: customDomainControllerLoggerMock.Object,
+                settingsOverridings: settingsOverridings);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{notResolvingDomainName}");
+            request.Content = JsonContent.Create(new { service, ruleType });
+
+            // Act
+            var response = await client.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Never);
+            Assert.Contains("System.InvalidOperationException: Failed to convert configuration value at 'DnsValidation:NotResolvingVerdict' to type 'DopplerCustomDomain.DnsValidation.DnsValidationVerdict'.", responseContent);
+            Assert.Contains($"System.FormatException: {wrongVerdictSetting} is not a valid value for DnsValidationVerdict.", responseContent);
+        }
+
+        [Fact]
+        public async Task PUT_domain_should_return_error_and_not_store_domain_when_it_does_not_resolve_to_our_IP_and_NotResolvingVerdict_setting_is_an_unexpected_integer()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var notResolvingDomainName = "www.google.com";
+            var ruleType = "HttpsOnly";
+            var service = "relay-tracking";
+            var wrongVerdictSetting = "100";
+
+            var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
+            var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
+            var settingsOverridings = new Dictionary<string, string>()
+            {
+                ["DnsValidation:NotResolvingVerdict"] = wrongVerdictSetting
+            };
+
+            using var appFactory = _factory.WithBypassAuthorization();
+
+            var client = CreateHttpClient(
+                appFactory,
+                customDomainProviderService: customDomainProviderServiceMock.Object,
+                customDomainControllerLogger: customDomainControllerLoggerMock.Object,
+                settingsOverridings: settingsOverridings);
+
+            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost/{notResolvingDomainName}");
+            request.Content = JsonContent.Create(new { service, ruleType });
+
+            // Act
+            var response = await client.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            customDomainProviderServiceMock.Verify(x => x.CreateCustomDomain(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<RuleType>()), Times.Never);
+            customDomainControllerLoggerMock.VerifyLog(LogLevel.Error, $"has an unknown verdict: {wrongVerdictSetting}", Times.Once);
+            Assert.Contains($"System.NotImplementedException: DnsValidationVerdict {wrongVerdictSetting} not supported", responseContent);
+        }
+
+        # endregion
     }
 }
