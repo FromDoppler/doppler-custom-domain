@@ -27,7 +27,7 @@ namespace DopplerCustomDomain.DnsValidation
                 new Mock<ILogger<Tsut>>(),
                 Options.Create<DnsValidationConfiguration>(new DnsValidationConfiguration()
                 {
-                    OurServersIPs = new[] { "184.106.28.222", "161.47.111.90", "161.47.111.91" }
+                    OurServersIPs = new[] { "184.106.28.222", "161.47.111.90", "161.47.111.91", "172.25.20.8", "172.25.20.90", "172.25.20.91" }
                 })
             );
 
