@@ -31,7 +31,7 @@ pipeline {
         stage('Publish in dopplerdock') {
             environment {
                 DOCKER_CREDENTIALS_ID = "dockerhub_dopplerdock"
-                DOCKER_IMAGE_NAME = "dopplerdock/doppler-custom-domain"
+                DOCKER_IMAGE_NAME = "dopplerdock/doppler-custom-domain${PACKAGE_SUFFIX}"
             }
             stages {
                 stage('Publish pre-release images from pull request') {
