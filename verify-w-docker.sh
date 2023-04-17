@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # It is only here for reference and backward compatibility, the source of truth
-# is Jenkinsfile
+# is doppler-jenkins-ci.groovy
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
