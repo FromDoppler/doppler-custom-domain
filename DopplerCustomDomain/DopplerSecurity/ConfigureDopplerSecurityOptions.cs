@@ -38,7 +38,9 @@ namespace DopplerCustomDomain.DopplerSecurity
         public void Configure(DopplerSecurityOptions options)
         {
             var path = _configuration.GetValue("PublicKeysFolder", "public-keys");
-            var files = _fileProvider.GetDirectoryContents(path).Where(x => !x.IsDirectory);
+            var files = path is null
+                ? Enumerable.Empty<IFileInfo>()
+                : _fileProvider.GetDirectoryContents(path).Where(x => !x.IsDirectory);
             var publicKeys = files
                 .Select(ReadToEnd)
                 .Select(ParseXmlString)

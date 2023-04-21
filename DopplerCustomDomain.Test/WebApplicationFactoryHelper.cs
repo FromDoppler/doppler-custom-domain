@@ -17,7 +17,7 @@ namespace DopplerCustomDomain.Test
                     // TODO: review if this is the best way to bypass the authentication
                     services => services.AddSingleton<IPolicyEvaluator, FakePolicyEvaluator>()));
 
-        public static WebApplicationFactory<Startup> AddConfiguration(this WebApplicationFactory<Startup> factory, IEnumerable<KeyValuePair<string, string>> initialData)
+        public static WebApplicationFactory<Startup> AddConfiguration(this WebApplicationFactory<Startup> factory, IEnumerable<KeyValuePair<string, string?>> initialData)
             => factory.WithWebHostBuilder(
                 builder => builder.ConfigureAppConfiguration(
                     (builderContext, configurationBuilder) => configurationBuilder.AddInMemoryCollection(initialData)));

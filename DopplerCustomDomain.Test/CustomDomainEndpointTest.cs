@@ -63,7 +63,7 @@ namespace DopplerCustomDomain.Test
             ICustomDomainProviderService? customDomainProviderService = null,
             IDnsResolutionValidator? dnsResolutionValidator = null,
             ILogger<CustomDomainController>? customDomainControllerLogger = null,
-            Dictionary<string, string>? settingsOverridings = null)
+            Dictionary<string, string?>? settingsOverridings = null)
         => appFactory.WithWebHostBuilder((e) => e
             .ConfigureAppConfiguration((context, configBuilder) =>
             {
@@ -628,7 +628,7 @@ namespace DopplerCustomDomain.Test
 
             var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
             var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
-            var settingsOverridings = new Dictionary<string, string>()
+            var settingsOverridings = new Dictionary<string, string?>()
             {
                 ["DnsValidation:NotResolvingVerdict"] = "Allow"
             };
@@ -666,7 +666,7 @@ namespace DopplerCustomDomain.Test
 
             var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
             var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
-            var settingsOverridings = new Dictionary<string, string>()
+            var settingsOverridings = new Dictionary<string, string?>()
             {
                 ["DnsValidation:NotResolvingVerdict"] = "Ignore"
             };
@@ -703,7 +703,7 @@ namespace DopplerCustomDomain.Test
 
             var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
             var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
-            var settingsOverridings = new Dictionary<string, string>()
+            var settingsOverridings = new Dictionary<string, string?>()
             {
                 ["DnsValidation:NotResolvingVerdict"] = wrongVerdictSetting
             };
@@ -742,7 +742,7 @@ namespace DopplerCustomDomain.Test
 
             var customDomainProviderServiceMock = CreateCustomDomainProviderServiceMock();
             var customDomainControllerLoggerMock = new Mock<ILogger<CustomDomainController>>();
-            var settingsOverridings = new Dictionary<string, string>()
+            var settingsOverridings = new Dictionary<string, string?>()
             {
                 ["DnsValidation:NotResolvingVerdict"] = wrongVerdictSetting
             };
