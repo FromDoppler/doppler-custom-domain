@@ -13,7 +13,7 @@ namespace DopplerCustomDomain.Test
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, _) => (v.ToString() ?? "").Contains(contains)),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()), times);
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()), times);
         }
     }
 }
