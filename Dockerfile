@@ -16,7 +16,7 @@ RUN dotnet test
 FROM build AS publish
 RUN dotnet publish "DopplerCustomDomain/DopplerCustomDomain.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0.5-bullseye-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:7.0.9-bullseye-slim AS final
 WORKDIR /app
 EXPOSE 80
 COPY --from=publish /app/publish .
