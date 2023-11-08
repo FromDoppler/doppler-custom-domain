@@ -38,7 +38,8 @@ namespace DopplerCustomDomain.DnsValidation
         [InlineData("relaytrk.dopplerrelay.org")] // CNAME => trk.relaytrk.com
         [InlineData("dopplerpages.com")] // A
         [InlineData("www.dopplerpages.com")] // CNAME => dopplerpages.com
-        [InlineData("r198.ddns.net")] // CNAME => www.dopplerpages.com
+        // TODO: create new dynamic DNS to this test
+        // [InlineData("r198.ddns.net")] // CNAME => www.dopplerpages.com
         public async Task IsNamePointingToOurServiceAsync_should_return_ok_for_well_configured_domains(string domainName)
         {
             // Arrange
