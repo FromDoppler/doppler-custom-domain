@@ -19,4 +19,4 @@ jobs:
     secrets: inherit
     with:
       dockerfile-path: "Dockerfile"
-      dockerhub-image-name: "doppler-custom-domain"
+      docker-image-name: "doppler-custom-domain"
