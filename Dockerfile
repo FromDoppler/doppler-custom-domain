@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0.404-bullseye-slim AS restore
+FROM mcr.microsoft.com/dotnet/sdk:7.0.404-1-bullseye-slim AS restore
 WORKDIR /src
 COPY ./*.sln ./
 COPY */*.csproj ./
