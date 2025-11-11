@@ -27,18 +27,16 @@ namespace DopplerCustomDomain.DnsValidation
                 new Mock<ILogger<Tsut>>(),
                 Options.Create<DnsValidationConfiguration>(new DnsValidationConfiguration()
                 {
-                    OurServersIPs = new[] { "184.106.28.222", "161.47.111.90", "161.47.111.91", "172.25.20.8", "172.25.20.90", "172.25.20.91" }
+                    OurServersIPs = new[] { "184.106.28.222", "161.47.119.167", "161.47.111.91", "172.25.20.8", "172.25.20.218", "172.25.20.91" }
                 })
             );
 
         [Theory]
-        [InlineData("trk2.relaytrk.com")] // A
         [InlineData("trk.relaytrk.com")] // A
         [InlineData("relaytrk.dopplerrelay.com")] // CNAME => trk2.relaytrk.com
-        [InlineData("relaytrk.dopplerrelay.org")] // CNAME => trk.relaytrk.com
         [InlineData("dopplerpages.com")] // A
         [InlineData("www.dopplerpages.com")] // CNAME => dopplerpages.com
-        [InlineData("r198.ddns.net")] // CNAME => www.dopplerpages.com
+        //[InlineData("r198.ddns.net")] // CNAME => www.dopplerpages.com <- As of 11/11/25 it's no longer configured
         public async Task IsNamePointingToOurServiceAsync_should_return_ok_for_well_configured_domains(string domainName)
         {
             // Arrange
