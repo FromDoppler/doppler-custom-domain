@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0.404-bullseye-slim AS restore
+FROM mcr.microsoft.com/dotnet/sdk:7.0.410-bullseye-slim AS restore
 WORKDIR /src
 COPY ./*.sln ./
 COPY */*.csproj ./
@@ -16,7 +16,7 @@ RUN dotnet test
 FROM build AS publish
 RUN dotnet publish "DopplerCustomDomain/DopplerCustomDomain.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0.14-bullseye-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:7.0.20-bullseye-slim AS final
 WORKDIR /app
 EXPOSE 80
 COPY --from=publish /app/publish .
